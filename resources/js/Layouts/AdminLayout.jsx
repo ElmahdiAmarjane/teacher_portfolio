@@ -5,8 +5,11 @@ export default function AdminLayout({children}){
 
     return (
         <>
-           <div className="flex">
-           <SideBar/>
+           <div className="block sm:flex">
+            
+            <SideBar/> 
+         
+        
              {/* Main Content */}
              <main className="flex-1 p-4">
                 {children}
