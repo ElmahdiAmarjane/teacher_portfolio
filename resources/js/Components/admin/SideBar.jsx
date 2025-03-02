@@ -116,10 +116,13 @@ const SideBar = () => {
               {Menus.map((menu, index) => (
                 <li
                   key={index}
-                  className="flex items-center p-2 text-sm text-gray-300 rounded cursor-pointer gap-x-4 hover:bg-light-white"
+                  className=""
                 >
+                  <Link href={menu.path} className="flex items-center p-2 text-sm text-gray-300 rounded cursor-pointer gap-x-4 hover:bg-light-white">
                   {menu.src}
                   <span>{menu.title}</span>
+                  </Link>
+               
                 </li>
               ))}
             </ul>
