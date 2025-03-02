@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 
-const AddCourse = ()=>{
+const Pubs = ()=>{
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -50,4 +50,4 @@ const AddCourse = ()=>{
     )
 }
 
-export default AddCourse;
+export default Pubs;

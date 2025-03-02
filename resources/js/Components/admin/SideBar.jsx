@@ -4,16 +4,17 @@ import { LayoutDashboard as DashIcon, MenuIcon, X } from "lucide-react";
 import { Layers as PubsIcon } from "lucide-react";
 import { Users as UsersIcon } from "lucide-react";
 import { LucideNewspaper as BlogIcon } from "lucide-react";
+import { Link } from "@inertiajs/react";
 
 const SideBar = () => {
   const [open, setOpen] = useState(true);
   const [mobileScreen, setMobileScreen] = useState(false);
 
   const Menus = [
-    { title: "Dashboard", src: <DashIcon className="w-6 h-6" /> },
-    { title: "Publications", src: <PubsIcon className="w-6 h-6" /> },
-    { title: "Users", src: <UsersIcon className="w-6 h-6" /> },
-    { title: "Blog", src: <BlogIcon className="w-6 h-6" /> },
+    { title: "Dashboard", src: <DashIcon className="w-6 h-6" /> , path:"/admin" },
+    { title: "Publications", src: <PubsIcon className="w-6 h-6" /> , path:"/admin/pubs" },
+    { title: "Users", src: <UsersIcon className="w-6 h-6" /> , path:"/admin/users"},
+    { title: "Blog", src: <BlogIcon className="w-6 h-6" />, path:"/admin/blog" },
   ];
 
   // Close sidebar when clicking outside of it on mobile
@@ -67,12 +68,15 @@ const SideBar = () => {
           {Menus.map((menu, index) => (
             <li
               key={index}
-              className="flex items-center p-2 text-sm text-gray-300 rounded cursor-pointer gap-x-4 hover:bg-light-white"
+              className=""
             >
+              <Link href={menu.path} className="flex items-center p-2 text-sm text-gray-300 rounded cursor-pointer gap-x-4 hover:bg-light-white">
               {menu.src}
               <span className={`${!open && "hidden"} origin-left duration-200`}>
                 {menu.title}
               </span>
+              </Link>
+           
             </li>
           ))}
         </ul>

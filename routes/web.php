@@ -67,11 +67,23 @@ Route::middleware('auth')->group(function () {
             ]);
         })->name('admin.dashboard');
 
-        Route::get('/addCourse', function () {
-            return Inertia::render('admin/AddCourse', [
+        Route::get('/pubs', function () {
+            return Inertia::render('admin/Pubs', [
                 'layout' => 'admin',
             ]);
-        })->name('admin.addCourse');
+        })->name('admin.pubs');
+
+        Route::get('/users', function () {
+            return Inertia::render('admin/Users', [
+                'layout' => 'admin',
+            ]);
+        })->name('admin.users');
+
+        Route::get('/blog', function () {
+            return Inertia::render('admin/Blog', [
+                'layout' => 'admin',
+            ]);
+        })->name('admin.blog');
     });
 
 });
