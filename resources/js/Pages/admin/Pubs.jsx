@@ -1,9 +1,9 @@
 
 import { useActionState, useState } from "react";
-import PubsCours from "./PubsCours";
-import PubsTp from "./PubsTp";
-import PubsTd from "./PubsTd";
-import PubsHeader from "./PubsHeader";
+import PubsCours from "./pubs/PubsCours";
+import PubsTp from "./pubs/PubsTp";
+import PubsTd from "./pubs/PubsTd";
+import PubsHeader from "./pubs/PubsHeader";
 
 
 

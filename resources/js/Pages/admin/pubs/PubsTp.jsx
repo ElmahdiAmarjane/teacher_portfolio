@@ -9,10 +9,10 @@ import {
 } from "lucide-react";
 import { useActionState, useState } from "react";
 
-import coursPdf from "../../assets/TP1_SIBDD.pdf";
+import coursPdf from "../../../assets/TP1_SIBDD.pdf";
 import { PubItem } from "./PubItem";
 
-const PubsCours = () => {
+const PubsTp = () => {
     const [courseOpen, setCourseOpen] = useState(true);
     const [tdOpen, setTdOpen] = useState(true);
     const [tpOpen, setTpOpen] = useState(true);
@@ -77,8 +77,7 @@ const PubsCours = () => {
                     <p className="flex gap-2">
                         {" "}
                         <Newspaper className="text-white-500" />
-                        Courses
-                     
+                        TP
                     </p>
 
                     <ArrowBigDownDash
@@ -90,7 +89,11 @@ const PubsCours = () => {
                         !courseOpen && "hidden"
                     } rounded flex flex-col  gap-2 border-[#1C2029] border-2  p-1 shadow-sm `}
                 >
-                
+                    <button className=" w-fit  self-end flex border p-1 border-[#1C2029]  ">
+                        <Plus />
+                        New Post
+                    </button>
+
                     {courses.map((e) => (
                         <PubItem item={e} />
                     ))}
@@ -103,4 +106,4 @@ const PubsCours = () => {
     );
 };
 
-export default PubsCours;
+export default PubsTp;

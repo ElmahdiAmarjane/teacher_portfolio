@@ -1,26 +1,10 @@
-import {
-    ArrowBigDown,
-    ArrowBigDownDash,
-    ArrowBigDownIcon,
-    ArrowDownAZ,
-    ArrowDownCircle,
-    ArrowDownWideNarrowIcon,
-    ArrowLeft,
-    CloudSunRain,
-    EllipsisIcon,
-    EllipsisVertical,
-    FileSpreadsheet,
-    Newspaper,
-    Plus,
-    PointerIcon,
-    Thermometer,
-} from "lucide-react";
+import { ArrowBigDownDash, Newspaper, Plus } from "lucide-react";
 import { useActionState, useState } from "react";
 
-import coursPdf from "../../assets/TP1_SIBDD.pdf";
+import coursPdf from "../../../assets/TP1_SIBDD.pdf";
 import { PubItem } from "./PubItem";
 
-const PubsTp = () => {
+const PubsTd = () => {
     const [courseOpen, setCourseOpen] = useState(true);
     const [tdOpen, setTdOpen] = useState(true);
     const [tpOpen, setTpOpen] = useState(true);
@@ -85,7 +69,7 @@ const PubsTp = () => {
                     <p className="flex gap-2">
                         {" "}
                         <Newspaper className="text-white-500" />
-                        TP
+                        TD
                     </p>
 
                     <ArrowBigDownDash
@@ -107,11 +91,8 @@ const PubsTp = () => {
                     ))}
                 </div>
             </div>
-
-
-            
         </>
     );
 };
 
-export default PubsTp;
+export default PubsTd;
