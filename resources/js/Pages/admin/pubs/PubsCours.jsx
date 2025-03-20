@@ -1,105 +1,101 @@
-import {
-    ArrowBigDown,
-    ArrowBigDownDash,
-
-    Newspaper,
-    Plus,
-    PointerIcon,
-    Thermometer,
-} from "lucide-react";
-import { useActionState, useState } from "react";
-
-import coursPdf from "../../../assets/TP1_SIBDD.pdf";
+import { useEffect, useState } from "react";
+import { Newspaper, ArrowBigDownDash } from "lucide-react";
 import { PubItem } from "./PubItem";
+
+import pdfPreviewImage from "../../../assets/TP1_SIBDD.pdf"; // Fixed image for all PDFs
+
+const BASE_URL = "http://127.0.0.1:8000/";
 
 const PubsCours = () => {
     const [courseOpen, setCourseOpen] = useState(true);
-    const [tdOpen, setTdOpen] = useState(true);
-    const [tpOpen, setTpOpen] = useState(true);
+    const [courses, setCourses] = useState([]);
+    const [loading, setLoading] = useState(true); // Handle loading state
+    const [error, setError] = useState(null); // Handle error state
 
-    const courses = [
-        {
-            title: "Introduction au Code",
-            description:
-                "Un aperçu des bases du code avec un exemple pratique.",
-            files: [
-                {
-                    type: "img",
-                    link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBbyfpnQ8jfcPo7Y8mzitgDs3Kpd6dcR_1XQ&s",
-                    titleImg: "code_example.jpg",
-                },
-            ],
-        },
-        {
-            title: "Framework Angular",
-            description:
-                "Logo officiel du framework Angular, utile pour les présentations.",
-            files: [
-                {
-                    type: "img",
-                    link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkD02DcSOWfqUixeEhhMcu-K-DGJupNkXZNA&s",
-                    titleImg: "map angular",
-                },
-                {
-                    type: "img",
-                    link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNHV1gamrQ4FdpUtHHBaWJY7nU-oFlPfQemw&s",
-                    titleImg: "logo_angular.png",
-                },
-                {
-                    type: "img",
-                    link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpfgkXLbczQtYUXHiAaPJ6IEGrkbmVHJBsNg&s",
-                    titleImg: "exapmle_code",
-                },
-            ],
-        },
-        {
-            title: "Cours Python",
-            description: "Un cours détaillé sur Python au format PDF.",
-            files: [
-                {
-                    type: "pdf",
-                    link: coursPdf,
-                    titleImg: "Cours Python pdf",
-                },
-            ],
-        },
-    ];
+    const handleDelete = (deletedId) => {
+        setCourses((prevCourses) =>
+            prevCourses.filter((course) => course.id !== deletedId)
+        );
+    };
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const response = await fetch(`${BASE_URL}api/publications/fetchByType`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ type: "COUR" }),
+                });
+
+                const data = await response.json();
+
+                if (data.publications && Array.isArray(data.publications)) {
+                    const updatedCourses = data.publications.map((course) => {
+                        let parsedFiles = [];
+                        try {
+                            parsedFiles = JSON.parse(course.files); // Convert files string to array
+                        } catch (error) {
+                            console.error("Error parsing files:", error);
+                        }
+
+                        // Filter only PDFs
+                        const pdfFiles = parsedFiles.filter((file) => file.endsWith(".pdf"));
+
+                        return {
+                            title: course.title,
+                            description: course.description,
+                            files: pdfFiles.map((pdf) => ({
+                                type: "pdf",
+                                link: pdfPreviewImage, // PDF file link
+                                previewImage: pdfPreviewImage, // Fixed local image as preview
+                                titleImg: "PDF Preview",
+                            })),
+                        };
+                    });
+
+                    setCourses(updatedCourses);
+                } else {
+                    console.error("Invalid response format:", data);
+                }
+            } catch (error) {
+                setError("Error fetching courses.");
+                console.error("Error fetching courses:", error);
+            } finally {
+                setLoading(false); // Stop loading once fetch is complete
+            }
+        };
+
+        fetchCourses();
+    }, []);
 
     return (
-        <>
-            <div className="  ">
-                <div
-                    className="flex justify-between   rounded-tl rounded-tr p-2 bg-[#1C2029] border  text-white  "
-                    onClick={() => {
-                        setCourseOpen(!courseOpen);
-                    }}
-                >
-                    <p className="flex gap-2">
-                        {" "}
-                        <Newspaper className="text-white-500" />
-                        Courses
-                     
-                    </p>
-
-                    <ArrowBigDownDash
-                        className={`${!courseOpen && "rotate-180"}`}
-                    />
-                </div>
-                <div
-                    className={` ${
-                        !courseOpen && "hidden"
-                    } rounded flex flex-col  gap-2 border-[#1C2029] border-2  p-1 shadow-sm `}
-                >
-                
-                    {courses.map((e) => (
-                        <PubItem item={e} />
-                    ))}
-                </div>
+        <div>
+            <div
+                className="flex justify-between rounded-tl rounded-tr p-2 bg-[#1C2029] border text-white cursor-pointer"
+                onClick={() => setCourseOpen(!courseOpen)}
+            >
+                <p className="flex gap-2">
+                    <Newspaper className="text-white-500" />
+                    Courses
+                </p>
+                <ArrowBigDownDash className={`${!courseOpen && "rotate-180"}`} />
             </div>
 
-
-            
-        </>
+            {courseOpen && (
+                <div className="rounded flex flex-col gap-2 border-[#1C2029] border-2 p-1 shadow-sm">
+                    {loading ? (
+                        <div className="flex justify-center items-center p-4 text-gray-500">Loading...</div>
+                    ) : error ? (
+                        <div className="flex justify-center items-center p-4 text-red-500">{error}</div>
+                    ) : courses.length > 0 ? (
+                        courses.map((course, index) => <PubItem key={index} item={course} onDelete={handleDelete} />)
+                    ) : (
+                        <div className="flex justify-center items-center p-4 text-gray-500">
+                            No courses available.
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
     );
 };
 
