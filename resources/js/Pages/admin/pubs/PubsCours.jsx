@@ -22,6 +22,7 @@ const PubsCours = () => {
             title: "Introduction au Code",
             description:
                 "Un aperçu des bases du code avec un exemple pratique.",
+            
             files: [
                 {
                     type: "img",
@@ -91,8 +92,8 @@ const PubsCours = () => {
                     } rounded flex flex-col  gap-2 border-[#1C2029] border-2  p-1 shadow-sm `}
                 >
                 
-                    {courses.map((e) => (
-                        <PubItem item={e} />
+                    {courses.map((e,index) => (
+                        <PubItem item={e} key={index}  />
                     ))}
                 </div>
             </div>

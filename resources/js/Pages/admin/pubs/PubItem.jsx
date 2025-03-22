@@ -6,9 +6,16 @@ import {
     Trash,
 } from "lucide-react";
 import { useState } from "react";
+import DeletePubs from "./DeletePubs";
+import NewPubs from "./NewPubs";
+import UpdatePubs from "./UpdatePubs";
 
 export function PubItem({ item }) {
     const [openActionPub, setOpenActionPub] = useState(false);
+
+    const [openDeleteAlert, setOpenDeleteAlert] = useState(false);
+    const [openUpdatePub, setOpenUpdatePub] = useState(false);
+  
     return (
         <div className="border-[1px] rounded border-[#1C2029] shadow-xl p-2">
             <div className="flex justify-between">
@@ -23,10 +30,11 @@ export function PubItem({ item }) {
                             !openActionPub && "hidden"
                         } absolute bg-gray-800 text-white top-8 right-5 p-2 rounded-lg shadow-md space-y-2`}
                     >
-                        <p className="flex items-center gap-2 p-1 hover:bg-gray-700 rounded-md transition-colors cursor-pointer">
+                        <p onClick={()=>setOpenUpdatePub(!openUpdatePub)} className="flex items-center gap-2 p-1 hover:bg-gray-700 rounded-md transition-colors cursor-pointer">
                             <Pencil size={16} /> Update
                         </p>
-                        <p className="flex items-center gap-2 p-1 hover:bg-gray-700 rounded-md transition-colors cursor-pointer">
+                        
+                        <p onClick={()=>setOpenDeleteAlert(!openDeleteAlert)} className="flex items-center gap-2 p-1 hover:bg-gray-700 rounded-md transition-colors cursor-pointer">
                             <Trash size={16} /> Delete
                         </p>
                         <p className="flex items-center gap-2 p-1 hover:bg-gray-700 rounded-md transition-colors cursor-pointer">
@@ -42,10 +50,10 @@ export function PubItem({ item }) {
             <div>
                 <p className="text-gray-400">Files : </p>
                 <div className="flex flex-wrap gap-4 p-2 shadow-[inset_0px_1px_6px_0px_rgba(0,_0,_0,_0.35)]">
-                    {item.files.map((item) => (
+                    {item.files.map((item,index) => (
                         <>
                             {item.type == "img" && (
-                                <div className="w-48  border-2 border-gray-400 rounded-lg overflow-hidden shadow-md flex flex-col items-center justify-between p-2">
+                                <div key={index} className="w-48  border-2 border-gray-400 rounded-lg overflow-hidden shadow-md flex flex-col items-center justify-between p-2">
                                     <div className="w-full h-40 bg-gray-200 flex items-center justify-center">
                                         <img
                                             className="w-full h-full object-cover"
@@ -59,7 +67,7 @@ export function PubItem({ item }) {
                                 </div>
                             )}
                             {item.type == "pdf" && (
-                                <div className="w-48  border-2 border-gray-400 rounded-lg overflow-hidden shadow-md flex flex-col items-center justify-between p-2">
+                                <div key={index} className="w-48  border-2 border-gray-400 rounded-lg overflow-hidden shadow-md flex flex-col items-center justify-between p-2">
                                     <div className="w-full h-40 bg-gray-200 flex items-center justify-center">
                                         <embed
                                             className="w-full h-full object-cover"
@@ -76,6 +84,9 @@ export function PubItem({ item }) {
                     ))}
                 </div>
             </div>
+         
+            {openDeleteAlert?  <DeletePubs item={item} onClose={()=>setOpenDeleteAlert(false)}/>:null}
+            {openUpdatePub?  <UpdatePubs item={item} onClose={()=>setOpenUpdatePub(false)}/>:null}
         </div>
     );
 }

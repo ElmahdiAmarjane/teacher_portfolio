@@ -94,8 +94,8 @@ const PubsTp = () => {
                         New Post
                     </button>
 
-                    {courses.map((e) => (
-                        <PubItem item={e} />
+                    {courses.map((e,index) => (
+                        <PubItem item={e} key={index} />
                     ))}
                 </div>
             </div>
