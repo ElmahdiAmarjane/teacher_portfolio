@@ -28,8 +28,8 @@ const Users = ()=>{
         <>
             <div className=" flex justify-center m-auto  ">
                 <table className=" w-full text-center">
-                    <thead>
-                      <tr >
+                    <thead className="bg-gray-200 rounded-md">
+                      <tr className="">
                         <td className="py-2 px-1">Photo</td>
                         <td className="py-2 px-1">Email</td>
                         <td className="py-2 px-1">Date</td>
@@ -39,15 +39,15 @@ const Users = ()=>{
                     </thead>
                     <tbody className=" ">
 
-                       <tr className="">
-                         <td className=" flex justify-center py-1 px-1"><div className={` ${getRandomColor()} text-white rounded-full w-10 h-10  text-center flex justify-center items-center`}>FR</div></td>
+                       <tr className="hover:bg-slate-100">
+                         <td className="flex justify-center py-1 px-1"><div className={` ${getRandomColor()} text-white rounded-full w-10 h-10  text-center flex justify-center items-center`}>FR</div></td>
                          <td className="py-1 px-1" >Elmahdi@gmail.com</td>
                          <td className="py-1 px-1">10-20-2025</td>
                          <td className="py-1 px-1"> <p className="p-1 bg-rose-500 outline-none rounded text-white hover:cursor-pointer">Unverfied</p></td>
                          <td><div  className="flex justify-center items-center "><Trash className="size-6 hover:text-red-700 hover:cursor-pointer"/></div></td>
                        </tr>
 
-                       <tr className="">
+                       <tr className="hover:bg-slate-100">
                          <td className=" flex justify-center py-1 px-1"><div className={` ${getRandomColor()} text-white rounded-full w-10 h-10  text-center flex justify-center items-center`}>FR</div></td>
                          <td className="py-1 px-1" >Elmahdi@gmail.com</td>
                          <td className="py-1 px-1">10-20-2025</td>
@@ -56,7 +56,7 @@ const Users = ()=>{
                        </tr>
 
                        
-                       <tr className="">
+                       <tr className="hover:bg-slate-100">
                          <td className=" flex justify-center py-1 px-1"><div className={` ${getRandomColor()} text-white rounded-full w-10 h-10  text-center flex justify-center items-center`}>FR</div></td>
                          <td className="py-1 px-1" >Elmahdi@gmail.com</td>
                          <td className="py-1 px-1">10-20-2025</td>
@@ -64,7 +64,7 @@ const Users = ()=>{
                          <td><div  className="flex justify-center items-center "><Trash className="size-6"/></div></td>
                        </tr>
 
-                       <tr className="">
+                       <tr className="hover:bg-slate-100">
                          <td className=" flex justify-center py-1 px-1"><div className={` ${getRandomColor()} text-white rounded-full w-10 h-10  text-center flex justify-center items-center`}>FR</div></td>
                          <td className="py-1 px-1" >Elmahdi@gmail.com</td>
                          <td className="py-1 px-1">10-20-2025</td>
