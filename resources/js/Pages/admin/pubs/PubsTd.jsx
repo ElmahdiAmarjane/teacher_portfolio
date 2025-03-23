@@ -9,8 +9,8 @@ const BASE_URL = "http://127.0.0.1:8000/";
 const PubsTd = () => {
     const [tdOpen, setTdOpen] = useState(true);
     const [tds, setTds] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true); // Handle loading state
+    const [error, setError] = useState(null); // Handle error state
 
     useEffect(() => {
         const fetchTds = async () => {
@@ -21,42 +21,41 @@ const PubsTd = () => {
                     body: JSON.stringify({ type: "TD" }),
                 });
 
-                if (!response.ok) throw new Error("Failed to fetch data");
-
                 const data = await response.json();
 
-                if (Array.isArray(data.publications)) {
+                if (data.publications && Array.isArray(data.publications)) {
                     const updatedTds = data.publications.map((td) => {
                         let parsedFiles = [];
                         try {
-                            parsedFiles = JSON.parse(td.files);
+                            parsedFiles = JSON.parse(td.files); // Convert files string to array
                         } catch (error) {
                             console.error("Error parsing files:", error);
                         }
 
+                        // Filter only PDFs
+                        const pdfFiles = parsedFiles.filter((file) => file.endsWith(".pdf"));
+
                         return {
                             title: td.title,
                             description: td.description,
-                            files: parsedFiles
-                                .filter((file) => file.endsWith(".pdf"))
-                                .map((pdf) => ({
-                                    type: "pdf",
-                                    link: pdfPreviewImage,
-                                    previewImage: pdfPreviewImage,
-                                    titleImg: "PDF Preview",
-                                })),
+                            files: pdfFiles.map((pdf) => ({
+                                type: "pdf",
+                                link: pdfPreviewImage, // PDF file link
+                                previewImage: pdfPreviewImage, // Fixed local image as preview
+                                titleImg: "PDF Preview",
+                            })),
                         };
                     });
 
                     setTds(updatedTds);
                 } else {
-                    throw new Error("Invalid response format");
+                    console.error("Invalid response format:", data);
                 }
             } catch (error) {
-                setError(error.message);
+                setError("Error fetching TDs.");
                 console.error("Error fetching TDs:", error);
             } finally {
-                setLoading(false);
+                setLoading(false); // Stop loading once fetch is complete
             }
         };
 
@@ -78,19 +77,10 @@ const PubsTd = () => {
 
             {tdOpen && (
                 <div className="rounded flex flex-col gap-2 border-[#1C2029] border-2 p-1 shadow-sm">
-                    <button className="w-fit self-end flex border p-1 border-[#1C2029]">
-                        <Plus />
-                        New Post
-                    </button>
-
                     {loading ? (
-                        <div className="flex justify-center items-center p-4 text-gray-500">
-                            Loading...
-                        </div>
+                        <div className="flex justify-center items-center p-4 text-gray-500">Loading...</div>
                     ) : error ? (
-                        <div className="flex justify-center items-center p-4 text-red-500">
-                            {error}
-                        </div>
+                        <div className="flex justify-center items-center p-4 text-red-500">{error}</div>
                     ) : tds.length > 0 ? (
                         tds.map((td, index) => <PubItem key={index} item={td} />)
                     ) : (
