@@ -53,6 +53,14 @@ Route::get('/signup', function () {
 require __DIR__.'/auth.php';
 
 Route::middleware('auth')->group(function () {
+    
+    Route::get('/', function () {
+        return Inertia::render('student/Home', [
+            'layout' => 'student',
+            'status' => session('status'), // Pass the flash message here
+        ]);
+    });
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -61,6 +69,7 @@ Route::middleware('auth')->group(function () {
     
     // Admin Pages (With Sidebar)
     Route::prefix('admin')->group(function () {
+        
         Route::get('/', function () {
             return Inertia::render('admin/Dashboard', [
                 'layout' => 'admin',
@@ -86,7 +95,19 @@ Route::middleware('auth')->group(function () {
         })->name('admin.blog');
     });
 
+    // Student Dashboard After lOGIN
+    Route::prefix('student')->group(function () {
+        Route::get('/', function () {
+            return Inertia::render('student/Dashboard', [
+                'layout' => 'student',
+            ]);
+        })->name('student.dashboard');
+
+    });
+
 });
+
+//STUDENT
 
 
 // ADD ROUTES 
@@ -104,6 +125,4 @@ Route::fallback(function () {
         'layout' => 'minimal', // Pass the layout name as a prop
     ]);
 });
-
-
 
