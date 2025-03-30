@@ -40,6 +40,7 @@ Route::delete('/publications/delete', [PublicationController::class, 'delete']);
 Route::post('/publications/fetchByType', [PublicationController::class, 'fetchByType']);
 
 
+
 //Users Managment
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users', [UsersController::class, 'fetchAll']); // Fetch all users (Admin only)

@@ -17,6 +17,7 @@ const PubsCours = () => {
             prevCourses.filter((course) => course.id !== deletedId)
         );
     };
+
     useEffect(() => {
         const fetchCourses = async () => {
             try {
@@ -26,9 +27,13 @@ const PubsCours = () => {
                     body: JSON.stringify({ type: "COUR" }),
                 });
 
+                if (!response.ok) {
+                    throw new Error("Failed to fetch data");
+                }
+
                 const data = await response.json();
 
-                if (data.publications && Array.isArray(data.publications)) {
+                if (data && data.publications && Array.isArray(data.publications)) {
                     const updatedCourses = data.publications.map((course) => {
                         let parsedFiles = [];
                         try {
@@ -55,9 +60,10 @@ const PubsCours = () => {
                     setCourses(updatedCourses);
                 } else {
                     console.error("Invalid response format:", data);
+                    setError("Invalid response format from the server.");
                 }
             } catch (error) {
-                setError("Error fetching courses.");
+                setError("Error fetching courses: " + error.message);
                 console.error("Error fetching courses:", error);
             } finally {
                 setLoading(false); // Stop loading once fetch is complete
