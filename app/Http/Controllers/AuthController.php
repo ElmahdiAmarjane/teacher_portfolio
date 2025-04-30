@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Events\Registered;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Validation\Rules\Password;
+use Inertia\Inertia; // Add this import
 
 class AuthController extends Controller
 {
@@ -20,25 +20,20 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!Auth::attempt($request->only('email', 'password'))) {
             throw ValidationException::withMessages([
-                'email' => ['Invalid credentials'],
+                'email' => __('auth.failed'),
             ]);
         }
 
-        // Revoke all old tokens
-        $user->tokens()->delete();
+        $request->session()->regenerate();
 
-        // Generate new token
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Login successful',
-            'user' => $user,
-            'token' => $token,
-        ], 200);
+        // Redirect based on role using named routes
+        if (auth()->user()->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+        
+        return redirect()->route('student.dashboard');
     }
 
     public function signup(Request $request)
@@ -53,28 +48,22 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'user',
+            'role' => 'user', // Default role
             'is_verified' => 0,
         ]);
 
         event(new Registered($user));
+        Auth::login($user);
 
-        // Generate token
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'User registered successfully',
-            'user' => $user,
-            'token' => $token,
-        ], 201);
+        return redirect()->route('student.dashboard');
     }
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-        return response()->json([
-            'message' => 'Logged out successfully',
-        ], 200);
+        return redirect('/');
     }
 }

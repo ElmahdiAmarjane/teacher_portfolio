@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+
+
 
 class AuthenticatedSessionController extends Controller
 {
@@ -41,7 +44,7 @@ class AuthenticatedSessionController extends Controller
         if ($user->role === 'admin') {
             return response()->json([
                 'message' => 'Login successful',
-                'redirect' => route('admin.dashboard'),
+                // 'redirect' => route('admin.dashboard'),
                 'role' => 'admin'
             ], 200);
         }
@@ -50,7 +53,7 @@ class AuthenticatedSessionController extends Controller
             if ($user->is_verified) {
                 return response()->json([
                     'message' => 'Login successful',
-                    'redirect' => route('student.dashboard'),
+                    // 'redirect' => route('student.dashboard'),
                     'role' => 'user'
                 ], 200);
             } else {
@@ -67,6 +70,8 @@ class AuthenticatedSessionController extends Controller
             'redirect' => null,
             'role' => null
         ], 400);
+
+        // print("ee");
     }
 
     /**

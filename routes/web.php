@@ -1,40 +1,15 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
 
-// Route::get('/', function () {
-//     return Inertia::render('Home');
-// });
-
-
-// Route::get('/', function () {
-//     return Inertia::render('Welcome', [
-//         'canLogin' => Route::has('login'),
-//         'canRegister' => Route::has('register'),
-//         'laravelVersion' => Application::VERSION,
-//         'phpVersion' => PHP_VERSION,
-//     ]);
-// });
-
-
-   // Student Pages (With Header & Footer)
-   Route::get('/', function () {
+// Public routes
+Route::get('/', function () {
     return Inertia::render('student/Home', [
-        'layout' => 'student', // Pass the layout name as a prop
+        'layout' => 'student',
     ]);
 });
 
@@ -42,35 +17,37 @@ Route::get('/signup', function () {
     return Inertia::render('Signup');
 });
 
-// Route::get('/home', function () {
-//     return Inertia::render('Home');
-// });
+Route::get('/login', function () {
+    if (Auth::check()) {
+        return auth()->user()->role === 'admin' 
+            ? redirect()->route('admin.dashboard')
+            : redirect()->route('student.dashboard');
+    }
 
-// Route::get('/dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
+    return Inertia::render('auth/Login', [
+        'layout' => 'minimal',
+    ]);
+})->name('login');
 
-require __DIR__.'/auth.php';
 
+
+
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+
+// Authenticated routes
 Route::middleware('auth')->group(function () {
-    
-    Route::get('/', function () {
-        return Inertia::render('student/Home', [
-            'layout' => 'student',
-            'status' => session('status'), // Pass the flash message here
-        ]);
+    // Student routes
+    Route::prefix('student')->group(function () {
+        Route::get('/dashboard', function () {
+            return Inertia::render('student/Dashboard', [
+                'layout' => 'student',
+            ]);
+        })->name('student.dashboard');
     });
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
- 
-    
-    // Admin Pages (With Sidebar)
+    // Admin routes
     Route::prefix('admin')->group(function () {
-        
-        Route::get('/', function () {
+        Route::get('/dashboard', function () {
             return Inertia::render('admin/Dashboard', [
                 'layout' => 'admin',
             ]);
@@ -95,34 +72,15 @@ Route::middleware('auth')->group(function () {
         })->name('admin.blog');
     });
 
-    // Student Dashboard After lOGIN
-    Route::prefix('student')->group(function () {
-        Route::get('/', function () {
-            return Inertia::render('student/Dashboard', [
-                'layout' => 'student',
-            ]);
-        })->name('student.dashboard');
-
-    });
-
+    // Profile routes
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-//STUDENT
-
-
-// ADD ROUTES 
-
-// Minimal Pages (No Sidebar, No Header/Footer)
-// Route::get('/login', function () {
-//     return Inertia::render('auth/Login', [
-//         'layout' => 'minimal', // Pass the layout name as a prop
-//     ]);
-// });
-
-// 404 Page (Minimal Layout)
+// 404 Page
 Route::fallback(function () {
     return Inertia::render('NotFound', [
-        'layout' => 'minimal', // Pass the layout name as a prop
+        'layout' => 'minimal',
     ]);
 });
-
