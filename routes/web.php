@@ -1,10 +1,8 @@
 <?php
-
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
 
 // Public routes
 Route::get('/', function () {
@@ -12,6 +10,45 @@ Route::get('/', function () {
         'layout' => 'student',
     ]);
 });
+
+// Route::get('/Dashboard', function () {
+//     return Inertia::render('admin2/Dashboard');
+// });
+
+
+
+
+// --------------------------------------------------------------
+
+
+
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard', [
+        'layout' => 'admin2/dashboard' 
+    ]);
+})->name('dashboard');
+
+
+Route::get('/users', function () {
+    return Inertia::render('Users');
+})->name('users'); 
+
+Route::get('/blog', function () {
+    return Inertia::render('Blog');
+})->name('blog'); 
+
+Route::get('/publication', function () {
+    return Inertia::render('Publication');
+})->name('publication'); 
+
+
+
+
+
+
+
+
+// ----------------------------------------------
 
 Route::get('/signup', function () {
     return Inertia::render('Signup');
@@ -28,9 +65,6 @@ Route::get('/login', function () {
         'layout' => 'minimal',
     ]);
 })->name('login');
-
-
-
 
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 

@@ -46,18 +46,9 @@ const Dashboard = ()=>{
               <p className="text-light-gray">Nbr Not Verified Users</p>
              </div>
              
-          </div>
-         
-         
-        
-
-          
+          </div> 
        </div>
-        
-     
-    
-
-        </>
+      </>
     )
 }
 
