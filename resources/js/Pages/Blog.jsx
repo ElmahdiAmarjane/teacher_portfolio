@@ -10,7 +10,7 @@ const Blog = () => {
       </div>
     </div>
   );
-};
+};zz
 
 Blog.layout = page => <DashboardLayout>{page}</DashboardLayout>;
 export default Blog;

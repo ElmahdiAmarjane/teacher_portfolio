@@ -41,6 +41,10 @@ Route::get('/publication', function () {
     return Inertia::render('Publication');
 })->name('publication'); 
 
+Route::get('/new', function () {
+    return Inertia::render('admin_2/publications/NewPublications');
+})->name('newpublication');
+
 
 
 
