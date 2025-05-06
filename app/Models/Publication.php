@@ -2,24 +2,28 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Publication extends Model
 {
-    use HasFactory;
-
-    protected $table = 'publications';
-
     protected $fillable = [
-        'title',
-        'description',
-        'files',
-        'publie_at',
-        'type'
+        'title', 
+        'type',
+        'formation_id',
+        'context',
+        'file',
+        'status',
     ];
 
-    protected $casts = [
-        'files' => 'array', // Since we are storing files as JSON
-    ];
+    public function formation(): BelongsTo
+    {
+        return $this->belongsTo(Formation::class);
+    }
+
+    public function files(): HasMany
+    {
+        return $this->hasMany(PublicationFile::class);
+    }
 }

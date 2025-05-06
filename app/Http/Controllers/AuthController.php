@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Validation\Rules\Password;
-use Inertia\Inertia; // Add this import
+use Inertia\Inertia;
+
 
 class AuthController extends Controller
 {
@@ -30,7 +31,7 @@ class AuthController extends Controller
 
         // Redirect based on role using named routes
         if (auth()->user()->role === 'admin') {
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('dashboard');
         }
         
         return redirect()->route('student.dashboard');
@@ -55,7 +56,8 @@ class AuthController extends Controller
         event(new Registered($user));
         Auth::login($user);
 
-        return redirect()->route('student.dashboard');
+        return Inertia::location(route('dashboard'));
+
     }
 
     public function logout(Request $request)
