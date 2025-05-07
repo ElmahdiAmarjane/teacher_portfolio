@@ -1,48 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import PublicationRow from '../Components/publications/publicationRow'; 
-import { router } from '@inertiajs/react';
+import { router,Link  } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useAlert } from '@/Components/alerts/AlertContext';
 
-const Publication = () => {
-  const [publications, setPublications] = useState([
-    {
-      id: 1,
-      title: "Introduction to Computer Science",
-      type: "Course",
-      date: "15/04/2023",
-      status: "published",
-    },
-    {
-      id: 2,
-      title: "Data Structures and Algorithms",
-      type: "Course",
-      date: "20/05/2023",
-      status: "published",
-    },
-    {
-      id: 3,
-      title: "Database Systems Lab",
-      type: "TP",
-      date: "10/06/2023",
-      status: "published",
-    },
-    {
-      id: 4,
-      title: "Web Development Exercises",
-      type: "TD",
-      date: "05/07/2023",
-      status: "Draft",
-    },
-    {
-      id: 5,
-      title: "Machine Learning Fundamentals",
-      type: "Course",
-      date: "15/06/2023",
-      status: "published",
-    }
-  ]);
+
+const Publication = ({ publications }) => {
+  console.log(publications); 
   const { showSuccess } = useAlert();
 
   const handleAddNewPublication = () => {
@@ -50,7 +15,7 @@ const Publication = () => {
   };
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this publication?')) {
-      setPublications(publications.filter(pub => pub.id !== id));
+      // setPublications(publications.filter(pub => pub.id !== id));
       showSuccess('Publication deleted successfully!');
     }
   };
@@ -113,13 +78,25 @@ const Publication = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-              {publications.map((pub) => (
-                <PublicationRow 
-                  key={pub.id} 
-                  pub={pub} 
-                  handleDelete={handleDelete} 
-                />
-              ))}
+            {publications?.length > 0 ? (
+              publications.map(pub => (
+                // <PublicationRow 
+                // key={pub.id} 
+                // pub={pub} 
+                // handleDelete={handleDelete} />
+                <tr>
+                <td>Test Title</td>
+                <td>Test Type</td>
+                <td>2024-06-01</td>
+                <td>Published</td>
+                <td>Actions</td>
+              </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">No publications found.</td>
+              </tr>
+            )}
             </tbody>
           </table>
         </div>

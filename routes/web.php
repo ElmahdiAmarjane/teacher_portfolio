@@ -69,7 +69,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/formations', [FormationController::class, 'store'])->name('formations.store');
 Route::get('/formations', [FormationController::class, 'index'])->name('formations.index');
 
-Route::post('/publications', [PublicationController::class, 'store'])->name('formations.store');
+Route::post('/publications', [PublicationController::class, 'store'])->name('publications.store');
+Route::get('/publications', [PublicationController::class, 'index'])->name('publications.index');
+
 
 
 // Authenticated routes

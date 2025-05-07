@@ -6,13 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Publication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class PublicationController extends Controller
 {
     // Fetch all publications
     public function index()
     {
-        return Publication::all();
+        $publications = Publication::all(); // or with pagination if needed
+        return Inertia::render('Publication', [
+            'publications' => $publications,
+        ]);
     }
 
     // Store new publication
@@ -33,7 +37,8 @@ class PublicationController extends Controller
 
         $publication = Publication::create($validated);
 
-        return response()->json($publication, 201);
+        // return response()->json($publication, 201);
+        return redirect()->back()->with('success', 'Publication created successfully');
     }
 
     // Show one

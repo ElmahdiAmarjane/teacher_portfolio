@@ -1,29 +1,27 @@
 import React, { useState } from 'react';
-import { usePage, useForm, router } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { useAlert } from '@/Components/alerts/AlertContext';
-const [errors, setErrors] = useState({});
 
 const NewPublications = () => {
   const { showSuccess, showError } = useAlert();
 
-
   const [publication, setPublication] = useState({
     title: '',
     type: '',
-    formation: '',
-    description: '',
+    formation_id: '',
     context: '',
-    status: 'Published',
+    status: 'published',
   });
 
-  const [files, setFiles] = useState([]);
+  const [file, setFile] = useState(null);
   const [showNewFormationModal, setShowNewFormationModal] = useState(false);
   const [newFormation, setNewFormation] = useState({
     title: '',
     image: null,
   });
-  const { data, setData, post, processing, errors, reset } = useForm({
+
+  const { setData, post, processing, reset } = useForm({
     title: '',
     image: null,
   });
@@ -38,30 +36,47 @@ const NewPublications = () => {
     setNewFormation(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileDrop = (e) => {
-    e.preventDefault();
-    const newFiles = Array.from(e.dataTransfer.files);
-    setFiles(prev => [...prev, ...newFiles]);
-  };
-
   const handleFileChange = (e) => {
-    const newFiles = Array.from(e.target.files);
-    setFiles(prev => [...prev, ...newFiles]);
+    setFile(e.target.files[0]);
   };
 
   const handleFormationImageChange = (e) => {
     setNewFormation(prev => ({ ...prev, image: e.target.files[0] }));
   };
 
-  const handleDeleteFile = (index) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Publication:', publication);
-    console.log('Files:', files);
-    // Submit logic here
+    
+    const formData = new FormData();
+    formData.append('title', publication.title);
+    formData.append('type', publication.type.toLowerCase()); // Convert to lowercase
+    formData.append('formation_id', publication.formation_id);
+    formData.append('context', publication.context);
+    formData.append('status', publication.status);
+    
+    if (file) {
+      formData.append('file', file);
+    }
+
+    router.post('/publications', formData, {
+      forceFormData: true,
+      onSuccess: () => {
+        showSuccess('Publication created successfully!');
+        // Reset form
+        setPublication({
+          title: '',
+          type: '',
+          formation_id: '',
+          context: '',
+          status: 'published',
+        });
+        setFile(null);
+      },
+      onError: (errors) => {
+        showError('Error creating publication!');
+        console.error(errors);
+      },
+    });
   };
 
   const handleNewFormationSubmit = (e) => {
@@ -86,167 +101,137 @@ const NewPublications = () => {
       },
     });
   };
-  //add new publication
- 
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-md dark:bg-gray-800 dark:border dark:border-gray-700">
       <h1 className="text-3xl font-bold text-gray-800 mb-4 dark:text-white">Add Publication</h1>
       <p className="text-gray-500 mb-8 dark:text-gray-400">Add New Publication.</p>
 
-      {/* Title */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Title</label>
-        <input
-          type="text"
-          name="title"
-          value={publication.title}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-        />
-      </div>
-
-      {/* Type & Formation */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Type</label>
-          <select
-            name="type"
-            value={publication.type}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          >
-            <option value="">Select type</option>
-            <option value="Course">Course</option>
-            <option value="TD">TD</option>
-            <option value="TP">TP</option>
-          </select>
-        </div>
-        <div>
-          <div className="flex justify-between items-center mb-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Formation</label>
-            <button
-              type="button"
-              onClick={() => setShowNewFormationModal(true)}
-              className="text-xs text-blue-600 hover:underline dark:text-blue-400"
-            >
-              + Add New Formation
-            </button>
-          </div>
-          <select
-            name="formation"
-            value={publication.formation}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          >
-            <option value="">Select Formation</option>
-            <option value="web avancee">Web</option>
-            <option value="DevOps">DevOps</option>
-            <option value="Java">Java</option>
-
-          </select>
-        </div>
-      </div>
-
-      {/* Context */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Context</label>
-        <textarea
-          name="context"
-          value={publication.context}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm h-32 resize-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        />
-        <p className="text-xs text-gray-500 mt-1 dark:text-gray-400">You can also upload files below instead of writing content.</p>
-      </div>
-
-      {/* File Upload */}
-      <div
-        onDrop={handleFileDrop}
-        onDragOver={(e) => e.preventDefault()}
-        className="mb-6 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-blue-500 transition-all dark:border-gray-600 dark:hover:border-blue-500"
-      >
-        <input
-          type="file"
-          multiple
-          className="hidden"
-          id="fileUpload"
-          onChange={handleFileChange}
-        />
-        <label htmlFor="fileUpload" className="cursor-pointer text-blue-600 font-semibold dark:text-blue-400">
-          Click to upload or drag and drop
-        </label>
-        <p className="text-sm text-gray-400 mt-1 dark:text-gray-500">PNG, JPG, PDF up to 10MB</p>
-      </div>
-
-      {/* Display Uploaded Files */}
-      {files.length > 0 && (
+      <form onSubmit={handleSubmit}>
+        {/* Title */}
         <div className="mb-6">
-          <h3 className="text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">Uploaded Files</h3>
-          <ul className="space-y-2">
-            {files.map((file, index) => (
-              <li
-                key={index}
-                className="flex items-center justify-between px-4 py-2 bg-gray-50 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+          <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Title</label>
+          <input
+            type="text"
+            name="title"
+            value={publication.title}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+            required
+          />
+        </div>
+
+        {/* Type & Formation */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Type</label>
+            <select
+              name="type"
+              value={publication.type}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              required
+            >
+              <option value="">Select type</option>
+              <option value="course">Course</option>
+              <option value="td">TD</option>
+              <option value="tp">TP</option>
+            </select>
+          </div>
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Formation</label>
+              <button
+                type="button"
+                onClick={() => setShowNewFormationModal(true)}
+                className="text-xs text-blue-600 hover:underline dark:text-blue-400"
               >
-                <span className="text-sm text-gray-800 dark:text-gray-300">{file.name}</span>
-                <button
-                  onClick={() => handleDeleteFile(index)}
-                  className="text-sm text-red-500 hover:underline dark:text-red-400"
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Status */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Status</label>
-        <div className="flex items-center space-x-6">
-          <label className="inline-flex items-center">
-            <input
-              type="radio"
-              name="status"
-              value="Published"
-              checked={publication.status === "Published"}
+                + Add New Formation
+              </button>
+            </div>
+            <select
+              name="formation_id"
+              value={publication.formation_id}
               onChange={handleChange}
-              className="text-blue-600 dark:text-blue-500"
-            />
-            <span className="ml-2 text-gray-700 dark:text-gray-300">Published</span>
-          </label>
-          <label className="inline-flex items-center">
-            <input
-              type="radio"
-              name="status"
-              value="Draft"
-              checked={publication.status === "Draft"}
-              onChange={handleChange}
-              className="text-blue-600 dark:text-blue-500"
-            />
-            <span className="ml-2 text-gray-700 dark:text-gray-300">Draft</span>
-          </label>
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              required
+            >
+              <option value="">Select Formation</option>
+              <option value="1">Web</option>
+              <option value="2">DevOps</option>
+              <option value="3">Java</option>
+            </select>
+          </div>
         </div>
-      </div>
 
-      {/* Buttons */}
-      <div className="flex justify-end space-x-4">
-        <button
-          type="button"
-          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          onClick={handleSubmit}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
-        >
-          Add Publication
-        </button>
-      </div>
+        {/* Description */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Context</label>
+          <textarea
+            name="context"
+            value={publication.context}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm h-32 resize-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          />
+        </div>
+
+        {/* File Upload */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">File (PDF)</label>
+          <input
+            type="file"
+            accept=".pdf"
+            onChange={handleFileChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          />
+        </div>
+
+        {/* Status */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Status</label>
+          <div className="flex items-center space-x-6">
+            <label className="inline-flex items-center">
+              <input
+                type="radio"
+                name="status"
+                value="published"
+                checked={publication.status === "published"}
+                onChange={handleChange}
+                className="text-blue-600 dark:text-blue-500"
+              />
+              <span className="ml-2 text-gray-700 dark:text-gray-300">Published</span>
+            </label>
+            <label className="inline-flex items-center">
+              <input
+                type="radio"
+                name="status"
+                value="draft"
+                checked={publication.status === "draft"}
+                onChange={handleChange}
+                className="text-blue-600 dark:text-blue-500"
+              />
+              <span className="ml-2 text-gray-700 dark:text-gray-300">Draft</span>
+            </label>
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-end space-x-4">
+          <button
+            type="button"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={processing}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+          >
+            {processing ? 'Saving...' : 'Add Publication'}
+          </button>
+        </div>
+      </form>
 
       {/* New Formation Modal */}
       {showNewFormationModal && (
@@ -288,8 +273,7 @@ const NewPublications = () => {
                   disabled={processing}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
                 >
-                  {/* {processing ? 'Creating...' : 'Create Formation'} */}
-                  Save
+                  {processing ? 'Creating...' : 'Create Formation'}
                 </button>
               </div>
             </form>
