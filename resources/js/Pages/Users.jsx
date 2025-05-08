@@ -1,77 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { useAlert } from '@/Components/alerts/AlertContext';
-import { FaCheck } from "react-icons/fa6";
-import { LiaTimesSolid } from "react-icons/lia";
-import { HiOutlineEnvelope } from "react-icons/hi2";
-import { 
-  FaChevronLeft, 
-  FaChevronRight 
-} from 'react-icons/fa';
+import { FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { LiaTimesSolid } from 'react-icons/lia';
+import { HiOutlineEnvelope } from 'react-icons/hi2';
+import axios from 'axios';
 
 const UsersPage = () => {
-    const [activeTab, setActiveTab] = useState('pending');
-    const { showSuccess } = useAlert();
+    const [activeTab, setActiveTab] = useState('all');
+    const { showSuccess, showError } = useAlert();
     const [currentPage, setCurrentPage] = useState(1);
+    const [users, setUsers] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const usersPerPage = 5;
 
-    // Sample user data
-    const [users, setUsers] = useState([
-      {
-          id: 1,
-          name: 'John Doe',
-          email: 'john.doe@example.com',
-          role: 'Student',
-          status: 'pending',
-          registeredDate: '16/04/2023'
-      },
-      {
-          id: 2,
-          name: 'Jane Smith',
-          email: 'jane.smith@example.com',
-          role: 'Teacher',
-          status: 'pending',
-          registeredDate: '20/03/2023'
-      },
-      {
-          id: 3,
-          name: 'Michael Johnson',
-          email: 'michael.johnson@example.com',
-          role: 'Student',
-          status: 'pending',
-          registeredDate: '05/05/2023'
-      },
-      {
-          id: 4,
-          name: 'Emily Williams',
-          email: 'emily.williams@example.com',
-          role: 'Student',
-          status: 'approved',
-          registeredDate: '28/04/2023'
-      },
-      {
-          id: 5,
-          name: 'David Brown',
-          email: 'david.brown@example.com',
-          role: 'Teacher',
-          status: 'rejected',
-          registeredDate: '10/02/2023'
-      },
-      // Add more users to test pagination
-      ...Array.from({ length: 15 }, (_, i) => ({
-          id: i + 6,
-          name: `User ${i + 6}`,
-          email: `user${i + 6}@example.com`,
-          role: i % 2 === 0 ? 'Student' : 'Teacher',
-          status: ['pending', 'approved', 'rejected'][i % 3],
-          registeredDate: new Date(Date.now() - i * 86400000).toLocaleDateString()
-      }))
-  ]);
+    // Fetch users from API
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await axios.get('/api/users');
+                const formattedUsers = response.data.map(user => ({
+                    ...user,
+                    registeredDate: new Date(user.created_at).toLocaleDateString()
+                }));
+                setUsers(formattedUsers);
+                setIsLoading(false);
+            } catch (error) {
+                showError('Failed to load users');
+                setIsLoading(false);
+            }
+        };
+
+        fetchUsers();
+    }, []);
 
     // Filter users based on active tab
     const filteredUsers = activeTab === 'all' 
         ? users 
-        : users.filter(user => user.status === activeTab);
+        : activeTab === 'verified' 
+            ? users.filter(user => user.is_verified === 1)
+            : users.filter(user => user.is_verified === 0);
 
     // Pagination logic
     const indexOfLastUser = currentPage * usersPerPage;
@@ -79,17 +47,37 @@ const UsersPage = () => {
     const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
     const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
-    const updateStatus = (userId, newStatus) => {
-        setUsers(users.map(user => 
-            user.id === userId ? { ...user, status: newStatus } : user
-        ));
-        showSuccess(`User ${newStatus} successfully`);
+    const handleStatusUpdate = async (email, shouldVerify) => {
+        try {
+            setIsLoading(true);
+            const endpoint = shouldVerify ? '/api/users/verify' : '/api/users/unverify';
+            const { data } = await axios.post(endpoint, { email });
+            
+            setUsers(users.map(user => 
+                user.email === email 
+                    ? { ...user, is_verified: shouldVerify ? 1 : 0 }
+                    : user
+            ));
+            showSuccess(data.message);
+        } catch (error) {
+            showError(error.response?.data?.message || 'Failed to update user status');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const deleteUser = (userId) => {
-        if (confirm('Are you sure you want to delete this user?')) {
-            setUsers(users.filter(user => user.id !== userId));
+    const handleDeleteUser = async (email) => {
+        if (!confirm('Are you sure you want to delete this user?')) return;
+        
+        try {
+            setIsLoading(true);
+            await axios.post('/api/users/delete', { email });
+            setUsers(users.filter(user => user.email !== email));
             showSuccess('User deleted successfully');
+        } catch (error) {
+            showError(error.response?.data?.message || 'Failed to delete user');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -101,11 +89,21 @@ const UsersPage = () => {
     const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
     const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
 
+    if (isLoading) {
+        return (
+            <div className="p-6 dark:bg-gray-800">
+                <div className="flex justify-center items-center h-64">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="p-6 dark:bg-gray-800">
+        <div className="p-6 dark:bg-gray-900">
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">Users Management</h1>
-                <p className="text-gray-600 dark:text-gray-300">Manage user accounts and approve new sign-ups</p>
+                <p className="text-gray-600 dark:text-gray-300">Manage user accounts and verification status</p>
             </div>
 
             {/* Tabs */}
@@ -121,34 +119,24 @@ const UsersPage = () => {
                     All Users
                 </button>
                 <button
-                    onClick={() => {setActiveTab('pending'); setCurrentPage(1);}}
+                    onClick={() => {setActiveTab('verified'); setCurrentPage(1);}}
                     className={`px-4 py-2 font-medium ${
-                        activeTab === 'pending' 
+                        activeTab === 'verified' 
                             ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' 
                             : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                     }`}
                 >
-                    Pending Approval
+                    Verified
                 </button>
                 <button
-                    onClick={() => {setActiveTab('approved'); setCurrentPage(1);}}
+                    onClick={() => {setActiveTab('unverified'); setCurrentPage(1);}}
                     className={`px-4 py-2 font-medium ${
-                        activeTab === 'approved' 
+                        activeTab === 'unverified' 
                             ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' 
                             : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                     }`}
                 >
-                    Approved
-                </button>
-                <button
-                    onClick={() => {setActiveTab('rejected'); setCurrentPage(1);}}
-                    className={`px-4 py-2 font-medium ${
-                        activeTab === 'rejected' 
-                            ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' 
-                            : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                    }`}
-                >
-                    Rejected
+                    Unverified
                 </button>
             </div>
 
@@ -166,61 +154,66 @@ const UsersPage = () => {
                     </thead>
                     <tbody className="bg-white dark:bg-gray-700 divide-y divide-gray-200 dark:divide-gray-600">
                         {currentUsers.map((user) => (
-                            <React.Fragment key={user.id}>
-                                <tr>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className='flex flex-col'>
-                                            <div className="font-medium text-gray-900 dark:text-gray-100">{user.name}</div>
-                                            <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        {user.role}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                            ${user.status === 'approved' 
-                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                                                : user.status === 'rejected' 
-                                                    ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' 
-                                                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}`}>
-                                            {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        {user.registeredDate}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div className="flex space-x-2">
-                                            {user.status !== 'approved' && (
-                                                <button
-                                                    onClick={() => updateStatus(user.id, 'approved')}
-                                                    className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
-                                                    title="Approve"
-                                                >
-                                                    <FaCheck className="w-5 h-5" />
-                                                </button>
-                                            )}
-                                            {user.status !== 'rejected' && (
-                                                <button
-                                                    onClick={() => updateStatus(user.id, 'rejected')}
-                                                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                                    title="Reject"
-                                                >
-                                                    <LiaTimesSolid className="w-5 h-5" />
-                                                </button>
-                                            )}
+                            <tr key={user.id}>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className='flex flex-col'>
+                                        <div className="font-medium text-gray-900 dark:text-gray-100">{user.name}</div>
+                                        <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                    {user.role}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        ${user.is_verified === 1 
+                                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}`}>
+                                        {user.is_verified === 1 ? 'Verified' : 'Unverified'}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                    {user.registeredDate}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div className="flex space-x-2">
+                                        {user.is_verified === 0 ? (
                                             <button
-                                                onClick={() => sendEmail(user.email)}
-                                                className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                                                title="Send Email"
+                                                onClick={() => handleStatusUpdate(user.email, true)}
+                                                className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                                                title="Verify"
+                                                disabled={isLoading}
                                             >
-                                                <HiOutlineEnvelope className="w-5 h-5" />
+                                                <FaCheck className="w-5 h-5" />
                                             </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </React.Fragment>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleStatusUpdate(user.email, false)}
+                                                className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
+                                                title="Unverify"
+                                                disabled={isLoading}
+                                            >
+                                                <LiaTimesSolid className="w-5 h-5" />
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={() => handleDeleteUser(user.email)}
+                                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                            title="Delete"
+                                            disabled={isLoading}
+                                        >
+                                            Delete
+                                        </button>
+                                        <button
+                                            onClick={() => sendEmail(user.email)}
+                                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                            title="Send Email"
+                                        >
+                                            <HiOutlineEnvelope className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
                         ))}
                     </tbody>
                 </table>
@@ -230,9 +223,7 @@ const UsersPage = () => {
             <div className="flex items-center justify-between mt-4 px-2">
                 <div className="text-sm text-gray-700 dark:text-gray-300">
                     Showing <span className="font-medium">{indexOfFirstUser + 1}</span> to{' '}
-                    <span className="font-medium">
-                        {Math.min(indexOfLastUser, filteredUsers.length)}
-                    </span> of{' '}
+                    <span className="font-medium">{Math.min(indexOfLastUser, filteredUsers.length)}</span> of{' '}
                     <span className="font-medium">{filteredUsers.length}</span> users
                 </div>
                 <div className="flex space-x-2">

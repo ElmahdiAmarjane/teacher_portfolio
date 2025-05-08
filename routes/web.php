@@ -3,6 +3,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FormationController;
 use App\Http\Controllers\Publication\PublicationController;
+use App\Http\Controllers\Users\UsersController;
+use Illuminate\Http\Request; 
+use App\Http\Controllers\VisitController;
+
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -51,7 +55,7 @@ Route::get('/login', function () {
     if (Auth::check()) {
         return auth()->user()->role === 'admin' 
             ? redirect()->route('dashboard')
-            : redirect()->route('student.dashboard');
+            : redirect()->route('dashboard');
     }
 
     return Inertia::render('auth/Login', [
@@ -74,10 +78,26 @@ Route::get('/publications', [PublicationController::class, 'index'])->name('publ
 
 
 
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/admin/dashboard', function () {
+        return Inertia::render('Admin/Dashboard');
+    })->name('admin.dashboard');
+
+    // If you prefer controller-based API routes in web.php
+    Route::prefix('admin')->group(function () {
+        Route::get('/visits/daily', [VisitController::class, 'daily']);
+        Route::get('/visits/weekly', [VisitController::class, 'weekly']);
+        Route::get('/visits/monthly', [VisitController::class, 'monthly']);
+        Route::get('/visits/yearly', [VisitController::class, 'yearly']);
+    });
+});
+
 // Authenticated routes
 Route::middleware('auth')->group(function () {
 
     Route::prefix('admin')->group(function () {
+        //CHARTS
+      
         
         //DASHBOARD
         Route::get('/dashboard', function () {
@@ -88,21 +108,38 @@ Route::middleware('auth')->group(function () {
         Route::get('/publication', function () {
             return Inertia::render('Publication');
         })->name('publication'); 
-        Route::get('publication/new', function () {
-            return Inertia::render('admin_2/publications/NewPublications');
-        })->name('newpublication');
-        Route::get('publication/update', function () {
-            return Inertia::render('admin_2/publications/UpdatePublications');
-        })->name('updatePublications');
+        Route::get('/publication/fetch-all', [PublicationController::class, 'index'])->name('publication.index');
 
+        
+        Route::prefix('publications')->group(function () {
+            // New publication form
+            Route::get('/new', function () {
+                return Inertia::render('admin_2/publications/NewPublications');
+            })->name('newpublication');
+        
+            // Update publication form - single route with optional ID
+            Route::get('/update', function (Request $request) {
+                return Inertia::render('admin_2/publications/UpdatePublications', [
+                    'id' => $request->query('id')
+                ]);
+            })->name('updatePublications');
+        
+            // Remove the duplicate route you had:
+            // Route::get('publication/update', ...) 
+        });
         //FOURMATIONS
 
 
         //USERS
-        Route::get('/users', function () {
-            return Inertia::render('Users');
-        })->name('users'); 
-        
+        Route::get('/users', fn() => Inertia::render('Users'))->name('users');
+        Route::get('/users/fetch', [UsersController::class, 'fetchAll'])->name('users.fetchAll');
+        Route::post('/users/delete', [UsersController::class, 'deleteUserByEmail'])->name('users.delete');
+        Route::delete('/users', [UsersController::class, 'deleteUserByEmail']);
+        Route::post('/users/verify', [UsersController::class, 'verifyUserByEmail'])->name('users.verify');
+
+        // Unverify a user
+        Route::post('/users/unverify', [UsersController::class, 'unverifyUserByEmail'])->name('users.unverify');
+                
         //BLOG
         Route::get('/blog', function () {
             return Inertia::render('Blog');

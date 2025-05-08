@@ -34,7 +34,7 @@ class AuthController extends Controller
             return redirect()->route('dashboard');
         }
         
-        return redirect()->route('student.dashboard');
+        return redirect()->route('dashboard');
     }
 
     public function signup(Request $request)

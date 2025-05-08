@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Formation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
 class FormationController extends Controller
@@ -14,40 +15,80 @@ class FormationController extends Controller
      */
     public function index()
     {
-        $formations = Formation::all();
-        // return response()->json($formations);
-        return Inertia::render('NewPublications', [
-            'formations' => $formations,  // Pass formations data to React component
-        ]);
+        try {
+            $formations = Formation::all();
+            return response()->json([
+                'success' => true,
+                'data' => $formations
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch formations',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
+    /**
+     * Store a newly created formation in storage.
+     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('public/formations');
-            $validated['image'] = str_replace('public/', 'storage/', $path);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        $formation = Formation::create($validated);
+        try {
+            $validated = $validator->validated();
+            
+            if ($request->hasFile('image')) {
+                $path = $request->file('image')->store('public/formations');
+                $validated['image'] = Storage::url($path); // Utilise Storage::url pour générer l'URL correcte
+            }
 
-        // return response()->json([
-        //     'message' => 'Formation created successfully',
-        //     'formation' => $formation
-        // ], 201);
+            $formation = Formation::create($validated);
 
-        return redirect()->back()->with('success', 'Formation created successfully');
+            return response()->json([
+                'success' => true,
+                'message' => 'Formation created successfully',
+                'data' => $formation
+            ], 201);
 
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create formation',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
-
+    /**
+     * Display the specified formation.
+     */
     public function show(Formation $formation)
     {
-        return response()->json($formation);
+        try {
+            return response()->json([
+                'success' => true,
+                'data' => $formation
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch formation',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -55,31 +96,50 @@ class FormationController extends Controller
      */
     public function update(Request $request, Formation $formation)
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'title' => 'sometimes|string|max:255',
-            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'date_creation' => 'sometimes|date',
         ]);
 
-        // Handle file upload if new image is provided
-        if ($request->hasFile('image')) {
-            // Delete old image
-            if ($formation->image) {
-                $oldImagePath = str_replace('storage/', 'public/', $formation->image);
-                Storage::delete($oldImagePath);
-            }
-
-            // Store new image
-            $path = $request->file('image')->store('public/formations');
-            $validated['image'] = str_replace('public/', 'storage/', $path);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        $formation->update($validated);
+        try {
+            $validated = $validator->validated();
 
-        return response()->json([
-            'message' => 'Formation updated successfully',
-            'formation' => $formation
-        ]);
+            // Handle file upload if new image is provided
+            if ($request->hasFile('image')) {
+                // Delete old image
+                if ($formation->image) {
+                    $oldImagePath = str_replace(Storage::url(''), '', $formation->image);
+                    Storage::delete($oldImagePath);
+                }
+
+                // Store new image
+                $path = $request->file('image')->store('public/formations');
+                $validated['image'] = Storage::url($path);
+            }
+
+            $formation->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Formation updated successfully',
+                'data' => $formation
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update formation',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -87,17 +147,27 @@ class FormationController extends Controller
      */
     public function destroy(Formation $formation)
     {
-        // Delete associated image
-        if ($formation->image) {
-            $imagePath = str_replace('storage/', 'public/', $formation->image);
-            Storage::delete($imagePath);
+        try {
+            // Delete associated image
+            if ($formation->image) {
+                $imagePath = str_replace(Storage::url(''), '', $formation->image);
+                Storage::delete($imagePath);
+            }
+
+            $formation->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Formation deleted successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete formation',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $formation->delete();
-
-        return response()->json([
-            'message' => 'Formation deleted successfully'
-        ]);
     }
 
     /**
@@ -105,7 +175,28 @@ class FormationController extends Controller
      */
     public function getFormationsForSelect()
     {
-        $formations = Formation::select('id', 'title')->get();
-        return response()->json($formations);
+        try {
+            $formations = Formation::select('id', 'title')->get();
+            return response()->json([
+                'success' => true,
+                'data' => $formations
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch formations for select',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getTotalFormation()
+    {
+        $total = Formation::count();
+        
+        return response()->json([
+            'success' => true,
+            'total_formations' => $total
+        ]);
     }
 }

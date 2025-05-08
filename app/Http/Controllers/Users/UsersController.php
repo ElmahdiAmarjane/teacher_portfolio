@@ -8,60 +8,86 @@ use Illuminate\Http\Request;
 
 class UsersController extends Controller
 {
+    // Fetch all users (excluding sensitive data)
     public function fetchAll()
     {
-        // Fetch all users, excluding sensitive data like password
         $users = User::select('id', 'name', 'email', 'role', 'is_verified', 'created_at', 'updated_at')->get();
-
         return response()->json($users);
     }
 
-    // Delete user by email from the request body
+    // Delete user by email
     public function deleteUserByEmail(Request $request)
     {
-        $email = $request->input('email'); // Get email from request body
-        
-        // Find user by email
-        $user = User::where('email', $email)->first();
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
 
         if ($user) {
-            $user->delete(); // Delete user
+            $user->delete();
             return response()->json(['message' => 'User deleted successfully']);
-        } else {
-            return response()->json(['message' => 'User not found'], 404);
         }
+
+        return response()->json(['message' => 'User not found'], 404);
     }
-    //Verifed
+
+    // Verify user by email
     public function verifyUserByEmail(Request $request)
     {
-        $email = $request->input('email'); // Get email from request body
+        $request->validate(['email' => 'required|email']);
 
-        // Find user by email
-        $user = User::where('email', $email)->first();
+        $user = User::where('email', $request->email)->first();
 
         if ($user) {
-            $user->is_verified = 1; // Unverify user
+            $user->is_verified = 1;
             $user->save();
-            return response()->json(['message' => 'User verfied successfully']);
-        } else {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['message' => 'User verified successfully']);
         }
+
+        return response()->json(['message' => 'User not found'], 404);
     }
 
-    //Un_Verifed
+    // Unverify user by email
     public function unverifyUserByEmail(Request $request)
     {
-        $email = $request->input('email'); // Get email from request body
+        $request->validate(['email' => 'required|email']);
 
-        // Find user by email
-        $user = User::where('email', $email)->first();
+        $user = User::where('email', $request->email)->first();
 
         if ($user) {
-            $user->is_verified = 0; // Unverify user
+            $user->is_verified = 0;
             $user->save();
-            return response()->json(['message' => 'User unverfied successfully']);
-        } else {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['message' => 'User unverified successfully']);
         }
+
+        return response()->json(['message' => 'User not found'], 404);
     }
+
+    public function getTotalUsers()
+    {
+        $total = User::count();
+        
+        return response()->json([
+            'success' => true,
+            'total_users' => $total
+        ]);
+    }
+
+    public function getRecentUsers()
+    {
+        $users = User::latest()
+            ->take(10)
+            ->get(['id', 'name', 'email', 'created_at']);
+    
+        return response()->json([
+            'success' => true,
+            'users' => $users->map(function ($user) {
+                return [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'date' => $user->created_at->format('F j, Y') // e.g., "May 15, 2023"
+                ];
+            })
+        ]);
+    }
+    
 }

@@ -1,10 +1,20 @@
-import React, { useState } from 'react';
-import { useForm, router } from '@inertiajs/react';
+import React, { useState, useEffect } from 'react';
+import { router } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { useAlert } from '@/Components/alerts/AlertContext';
+import axios from 'axios';
+import { FaPlus } from 'react-icons/fa';
 
 const NewPublications = () => {
   const { showSuccess, showError } = useAlert();
+  const [isLoading, setIsLoading] = useState(false);
+  const [formations, setFormations] = useState([]);
+  const [isLoadingFormations, setIsLoadingFormations] = useState(true);
+  const [showFormationModal, setShowFormationModal] = useState(false);
+  const [newFormation, setNewFormation] = useState({
+    title: '',
+    image: null
+  });
 
   const [publication, setPublication] = useState({
     title: '',
@@ -12,23 +22,38 @@ const NewPublications = () => {
     formation_id: '',
     context: '',
     status: 'published',
+    file: null
   });
 
-  const [file, setFile] = useState(null);
-  const [showNewFormationModal, setShowNewFormationModal] = useState(false);
-  const [newFormation, setNewFormation] = useState({
-    title: '',
-    image: null,
-  });
+  // Fetch formations when component mounts
+  useEffect(() => {
+    fetchFormations();
+  }, []);
 
-  const { setData, post, processing, reset } = useForm({
-    title: '',
-    image: null,
-  });
+  const fetchFormations = async () => {
+    setIsLoadingFormations(true);
+    try {
+      const response = await axios.get('/api/fetchFormation');
+      const formationsData = Array.isArray(response.data) 
+        ? response.data 
+        : response.data?.data || response.data?.formations || [];
+      setFormations(formationsData);
+    } catch (error) {
+      console.error('Error fetching formations:', error);
+      showError('Failed to load formations');
+      setFormations([]);
+    } finally {
+      setIsLoadingFormations(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPublication(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    setPublication(prev => ({ ...prev, file: e.target.files[0] }));
   };
 
   const handleNewFormationChange = (e) => {
@@ -36,77 +61,81 @@ const NewPublications = () => {
     setNewFormation(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  const handleFormationImageChange = (e) => {
+  const handleNewFormationImageChange = (e) => {
     setNewFormation(prev => ({ ...prev, image: e.target.files[0] }));
   };
 
-  const handleSubmit = (e) => {
+  const handleAddFormation = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    const formData = new FormData();
-    formData.append('title', publication.title);
-    formData.append('type', publication.type.toLowerCase()); // Convert to lowercase
-    formData.append('formation_id', publication.formation_id);
-    formData.append('context', publication.context);
-    formData.append('status', publication.status);
-    
-    if (file) {
-      formData.append('file', file);
-    }
+    try {
+      const formData = new FormData();
+      formData.append('title', newFormation.title);
+      if (newFormation.image) {
+        formData.append('image', newFormation.image);
+      }
 
-    router.post('/publications', formData, {
-      forceFormData: true,
-      onSuccess: () => {
-        showSuccess('Publication created successfully!');
-        // Reset form
-        setPublication({
-          title: '',
-          type: '',
-          formation_id: '',
-          context: '',
-          status: 'published',
-        });
-        setFile(null);
-      },
-      onError: (errors) => {
-        showError('Error creating publication!');
-        console.error(errors);
-      },
-    });
+      const response = await axios.post('/api/addFormation', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      showSuccess('Formation added successfully!');
+      setShowFormationModal(false);
+      setNewFormation({ title: '', image: null });
+      fetchFormations(); // Refresh the formations list
+    } catch (error) {
+      console.error('Error adding formation:', error);
+      showError(error.response?.data?.message || 'Error adding formation');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleNewFormationSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('title', publication.title);
+      formData.append('type', publication.type);
+      formData.append('formation_id', publication.formation_id);
+      formData.append('context', publication.context);
+      formData.append('status', publication.status);
+      if (publication.file) {
+        formData.append('file', publication.file);
+      }
 
-    const formData = new FormData();
-    formData.append('title', newFormation.title);
-    formData.append('image', newFormation.image);
+      await axios.post('/api/publications/store', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
 
-    router.post('/formations', formData, {
-      forceFormData: true,
-      onSuccess: () => {
-        showSuccess('Formation created successfully!');
-        setShowNewFormationModal(false);
-        setNewFormation({ title: '', image: null });
-        reset();
-        router.reload({ only: ['formations'] });
-      },
-      onError: (errors) => {
-        showError('Error creating formation!');
-        console.error(errors);
-      },
-    });
+      showSuccess('Publication created successfully!');
+      setPublication({
+        title: '',
+        type: '',
+        formation_id: '',
+        context: '',
+        status: 'published',
+        file: null
+      });
+    } catch (error) {
+      console.error('Error creating publication:', error);
+      showError(error.response?.data?.message || 'Error creating publication');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-md dark:bg-gray-800 dark:border dark:border-gray-700">
       <h1 className="text-3xl font-bold text-gray-800 mb-4 dark:text-white">Add Publication</h1>
-      <p className="text-gray-500 mb-8 dark:text-gray-400">Add New Publication.</p>
-
+      
       <form onSubmit={handleSubmit}>
         {/* Title */}
         <div className="mb-6">
@@ -116,55 +145,69 @@ const NewPublications = () => {
             name="title"
             value={publication.title}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             required
           />
         </div>
 
-        {/* Type & Formation */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Type</label>
-            <select
-              name="type"
-              value={publication.type}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              required
+        {/* Type */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Type</label>
+          <select
+            name="type"
+            value={publication.type}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            required
+          >
+            <option value="">Select type</option>
+            <option value="course">Course</option>
+            <option value="td">TD</option>
+            <option value="tp">TP</option>
+          </select>
+        </div>
+
+        {/* Formation */}
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Formation</label>
+            <button
+              type="button"
+              onClick={() => setShowFormationModal(true)}
+              className="flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
             >
-              <option value="">Select type</option>
-              <option value="course">Course</option>
-              <option value="td">TD</option>
-              <option value="tp">TP</option>
-            </select>
+              <FaPlus className="mr-1" /> Add New Formation
+            </button>
           </div>
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Formation</label>
-              <button
-                type="button"
-                onClick={() => setShowNewFormationModal(true)}
-                className="text-xs text-blue-600 hover:underline dark:text-blue-400"
-              >
-                + Add New Formation
-              </button>
+          
+          {isLoadingFormations ? (
+            <div className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-gray-100 dark:bg-gray-700">
             </div>
+          ) : (
             <select
               name="formation_id"
               value={publication.formation_id}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               required
+              disabled={formations.length === 0}
             >
               <option value="">Select Formation</option>
-              <option value="1">Web</option>
-              <option value="2">DevOps</option>
-              <option value="3">Java</option>
+              {formations.map(formation => (
+                <option key={formation.id} value={formation.id}>
+                  {formation.title}
+                </option>
+              ))}
             </select>
-          </div>
+          )}
+          {!isLoadingFormations && formations.length === 0 && (
+            <p className="mt-1 text-sm text-red-500 dark:text-red-400">
+              No formations available. Please add one.
+            </p>
+          )}
         </div>
 
-        {/* Description */}
+        {/* Context */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Context</label>
           <textarea
@@ -180,6 +223,7 @@ const NewPublications = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">File (PDF)</label>
           <input
             type="file"
+            name="file"
             accept=".pdf"
             onChange={handleFileChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -215,32 +259,26 @@ const NewPublications = () => {
           </div>
         </div>
 
-        {/* Buttons */}
-        <div className="flex justify-end space-x-4">
-          <button
-            type="button"
-            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-          >
-            Cancel
-          </button>
+        {/* Submit Button */}
+        <div className="flex justify-end">
           <button
             type="submit"
-            disabled={processing}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+            disabled={isLoading || (formations.length === 0 && !isLoadingFormations)}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-700 dark:hover:bg-blue-800"
           >
-            {processing ? 'Saving...' : 'Add Publication'}
+            {isLoading ? 'Creating...' : 'Create Publication'}
           </button>
         </div>
       </form>
 
-      {/* New Formation Modal */}
-      {showNewFormationModal && (
+      {/* Add Formation Modal */}
+      {showFormationModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full dark:bg-gray-800 dark:border dark:border-gray-700">
-            <h2 className="text-xl font-bold mb-4 dark:text-white">Create New Formation</h2>
-            <form onSubmit={handleNewFormationSubmit}>
+          <div className="bg-white rounded-lg p-6 max-w-md w-full dark:bg-gray-800">
+            <h2 className="text-xl font-bold mb-4 dark:text-white">Add New Formation</h2>
+            <form onSubmit={handleAddFormation}>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Formation Title</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Title</label>
                 <input
                   type="text"
                   name="title"
@@ -251,29 +289,30 @@ const NewPublications = () => {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Formation Image</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Image</label>
                 <input
                   type="file"
+                  name="image"
                   accept="image/*"
-                  onChange={handleFormationImageChange}
+                  onChange={handleNewFormationImageChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   required
                 />
               </div>
-              <div className="flex justify-end space-x-4">
+              <div className="flex justify-end space-x-3">
                 <button
                   type="button"
-                  onClick={() => setShowNewFormationModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                  onClick={() => setShowFormationModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={processing}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-700 dark:hover:bg-blue-800"
                 >
-                  {processing ? 'Creating...' : 'Create Formation'}
+                  {isLoading ? 'Adding...' : 'Add Formation'}
                 </button>
               </div>
             </form>
@@ -285,5 +324,4 @@ const NewPublications = () => {
 };
 
 NewPublications.layout = page => <DashboardLayout>{page}</DashboardLayout>;
-
 export default NewPublications;
