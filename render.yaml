@@ -1,10 +1,14 @@
 services:
   - type: web
-    name: portfolio_professeur
-    runtime: php
-    buildCommand: |
-      npm install
-      npm run build
-      composer install --no-dev
-    startCommand: php artisan serve --host=0.0.0.0 --port=${PORT}
-    env: php
+    name: portfolio-professeur
+    runtime: docker
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        value: https://portfolio-professeur.onrender.com
+      - key: ASSET_URL
+        value: https://portfolio-professeur.onrender.com
