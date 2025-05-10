@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import { useAlert } from '@/Components/alerts/AlertContext';
 import axios from 'axios';
 import { FaPlus } from 'react-icons/fa';
-import DashboardLayout from '@/Layouts/DashboardLayout';
 
 const NewPublications = () => {
   const { showSuccess, showError } = useAlert();

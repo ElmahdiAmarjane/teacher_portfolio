@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/layouts/DashboardLayout';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import axios from 'axios';
 import { usePage, router } from '@inertiajs/react';
 import { useAlert } from '@/Components/alerts/AlertContext';
