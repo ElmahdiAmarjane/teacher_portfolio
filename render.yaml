@@ -6,11 +6,11 @@ services:
     envVars:
       - key: APP_ENV
         value: production
-      - key: APP_DEBUG
-        value: false
       - key: APP_URL
-        value: https://portfolio-professeur.onrender.com
-      - key: ASSET_URL
         value: https://portfolio-professeur.onrender.com
       - key: VITE_APP_URL
         value: https://portfolio-professeur.onrender.com
+      - key: DB_HOST
+        value: your_mysql_host
+      - key: DB_PORT
+        value: 3306
