@@ -1,3 +1,13 @@
+# Stage 1: Build assets
+FROM node:18 as build
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Stage 2: PHP backend
 FROM php:8.2-fpm
 
 WORKDIR /var/www
@@ -14,21 +24,17 @@ RUN apt-get update && apt-get install -y \
     nginx \
     && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
 
-# Install Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
-    && apt-get install -y nodejs
-
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy application files
 COPY . .
 
+# Copy built assets from node stage
+COPY --from=build /app/public/build /var/www/public/build
+
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
-
-# Install npm dependencies and build assets
-RUN npm install && npm run build
 
 # Configure nginx
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf

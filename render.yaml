@@ -12,3 +12,5 @@ services:
         value: https://portfolio-professeur.onrender.com
       - key: ASSET_URL
         value: https://portfolio-professeur.onrender.com
+      - key: VITE_APP_URL
+        value: https://portfolio-professeur.onrender.com
