@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { router } from "@inertiajs/react";
-import { EyeIcon, EyeOffIcon, ErrorIcon, SuccessIcon } from '@/Components/Icons/icons';
+import { FaEye, FaEyeSlash, FaExclamationCircle, FaCheckCircle } from "react-icons/fa";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -8,7 +8,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false); // Separate state for confirm password
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
   const [errors, setErrors] = useState({});
   const [flashMessage, setFlashMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +38,7 @@ const Register = () => {
           type: 'success',
           message: 'Registration successful! Redirecting...'
         });
-        window.location.href = "/dashboard"; // or wherever you want to redirect
+        window.location.href = "/dashboard";
       }
     });
   };
@@ -61,9 +61,9 @@ const Register = () => {
           <div className={`mt-4 p-4 rounded-md ${flashMessage.type === 'error' ? 'bg-red-50 text-red-800' : 'bg-green-50 text-green-800'}`}>
             <div className="flex items-center">
               {flashMessage.type === 'error' ? (
-                <ErrorIcon className="h-5 w-5 mr-2" />
+                <FaExclamationCircle className="h-5 w-5 mr-2" />
               ) : (
-                <SuccessIcon className="h-5 w-5 mr-2" />
+                <FaCheckCircle className="h-5 w-5 mr-2" />
               )}
               <span>{flashMessage.message}</span>
             </div>
@@ -125,7 +125,7 @@ const Register = () => {
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? <EyeOffIcon className="h-5 w-5 text-gray-400" /> : <EyeIcon className="h-5 w-5 text-gray-400" />}
+                  {showPassword ? <FaEyeSlash className="h-5 w-5 text-gray-400" /> : <FaEye className="h-5 w-5 text-gray-400" />}
                 </button>
               </div>
               {errors.password && <p className="mt-2 text-sm text-red-600">{errors.password}</p>}
@@ -149,7 +149,7 @@ const Register = () => {
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
                 >
-                  {showPasswordConfirmation ? <EyeOffIcon className="h-5 w-5 text-gray-400" /> : <EyeIcon className="h-5 w-5 text-gray-400" />}
+                  {showPasswordConfirmation ? <FaEyeSlash className="h-5 w-5 text-gray-400" /> : <FaEye className="h-5 w-5 text-gray-400" />}
                 </button>
               </div>
               {errors.password_confirmation && (

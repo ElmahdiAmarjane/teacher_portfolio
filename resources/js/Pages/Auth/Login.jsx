@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { router } from "@inertiajs/react";
-import { EyeIcon, EyeOffIcon, ErrorIcon, SuccessIcon } from '@/Components/Icons/Icons';
+import { FaEye, FaEyeSlash, FaExclamationCircle, FaCheckCircle } from "react-icons/fa";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -91,9 +91,9 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOffIcon className="h-5 w-5 text-gray-400" />
+                    <FaEyeSlash className="h-5 w-5 text-gray-400" />
                   ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
+                    <FaEye className="h-5 w-5 text-gray-400" />
                   )}
                 </button>
               </div>
@@ -136,9 +136,9 @@ const Login = () => {
           <div className={`mt-4 p-4 rounded-md ${flashMessage.type === 'error' ? 'bg-red-50 text-red-800' : 'bg-green-50 text-green-800'}`}>
             <div className="flex items-center">
               {flashMessage.type === 'error' ? (
-                <ErrorIcon className="h-5 w-5 mr-2" />
+                <FaExclamationCircle className="h-5 w-5 mr-2" />
               ) : (
-                <SuccessIcon className="h-5 w-5 mr-2" />
+                <FaCheckCircle className="h-5 w-5 mr-2" />
               )}
               <span>{flashMessage.message}</span>
             </div>
