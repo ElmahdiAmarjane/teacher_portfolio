@@ -26,6 +26,7 @@ Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/publications/getThisWeekPublications', [PublicationController::class, 'getThisWeekPublications']);
     Route::get('/publications/getPublicationPublished', [PublicationController::class, 'getPublicationPublished']);
     Route::get('/publications/getRecentPublications', [PublicationController::class, 'getRecentPublications']);
+    Route::post('/publications/getPublicationsByFormation', [PublicationController::class, 'getPublicationsByFormation']);
 
 // });
 
@@ -44,6 +45,8 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::post('/addFormation', [FormationController::class, 'store']);
 Route::get('/fetchFormation', [FormationController::class, 'index']);
 Route::get('/formations/getTotalFormation', [FormationController::class, 'getTotalFormation']);
+Route::post('/formations', [FormationController::class, 'destroyById']);
+Route::post('/formations', [FormationController::class, 'update']);
 
 
 Route::middleware(['auth:sanctum'])->group(function () {

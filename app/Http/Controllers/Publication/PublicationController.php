@@ -169,4 +169,30 @@ public function getRecentPublications()
         })
     ]);
 }
+
+public function getPublicationsByFormation(Request $request)
+{
+    $request->validate([
+        'formation_id' => 'required|exists:formations,id',
+    ]);
+
+    try {
+        $publications = Publication::where('formation_id', $request->formation_id)
+            ->orderBy('created_at', 'desc')
+            ->get(); // get all, not paginated
+
+        return response()->json([
+            'success' => true,
+            'data' => $publications
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to fetch publications for this formation',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
 }

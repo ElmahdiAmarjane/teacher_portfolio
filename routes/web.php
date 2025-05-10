@@ -6,10 +6,11 @@ use App\Http\Controllers\Publication\PublicationController;
 use App\Http\Controllers\Users\UsersController;
 use Illuminate\Http\Request; 
 use App\Http\Controllers\VisitController;
-
-
+use App\Models\Blog;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\BlogController;
+
 
 // Public routes
 Route::get('/', function () {
@@ -73,12 +74,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/formations', [FormationController::class, 'store'])->name('formations.store');
 Route::get('/formations', [FormationController::class, 'index'])->name('formations.index');
 
+
+
 Route::post('/publications', [PublicationController::class, 'store'])->name('publications.store');
 Route::get('/publications', [PublicationController::class, 'index'])->name('publications.index');
 
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
+
     Route::get('/admin/dashboard', function () {
         return Inertia::render('Admin/Dashboard');
     })->name('admin.dashboard');
@@ -92,12 +96,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
+// Route::post('/admin/blogs', [BlogController::class, 'store'])->name('admin.blogs.store');
+// routes/web.php
+
+Route::get('/formation', function () {
+    return Inertia::render('Formation');
+})->name('formation');
+
+Route::get('/formation/detail', function () {
+    return Inertia::render('admin_2/formations/FormationDetails');
+})->name('formationDetails');
+
 // Authenticated routes
 Route::middleware('auth')->group(function () {
 
     Route::prefix('admin')->group(function () {
         //CHARTS
       
+        //FORMATIONS
+       ;
+        
+
         
         //DASHBOARD
         Route::get('/dashboard', function () {
@@ -144,7 +163,48 @@ Route::middleware('auth')->group(function () {
         Route::get('/blog', function () {
             return Inertia::render('Blog');
         })->name('blog'); 
+        // Route::get('/blog', [BlogController::class, 'index'])->name('admin.blog');
+
     });
+
+    Route::get('/blog', function () {
+        $blogs = Blog::latest()->get(); // Récupération des blogs
+        return Inertia::render('admin/Blog', [
+            'layout' => 'admin',
+            'blogs' => $blogs, // On les envoie ici
+        ]);
+    })->name('admin.blog');
+
+        // Add this delete route
+    Route::delete('/blog/{blog}', function (Blog $blog) {
+        $blog->delete();
+        return redirect()->route('admin.blog')->with('success', 'Blog deleted successfully');
+    })->name('admin.blog.destroy');
+
+    // Show edit form (GET)
+    Route::get('/blog/{blog}/edit', function (Blog $blog) {
+    return Inertia::render('admin/Blogs/BlogEdit', [
+        'layout' => 'admin',
+        'blog' => $blog,
+    ]);
+    })->name('admin.blog.edit');
+
+    // Handle update (PUT)
+    Route::put('/blog/{blog}', [BlogController::class, 'update'])->name('admin.blog.update');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

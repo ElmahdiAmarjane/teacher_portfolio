@@ -27,6 +27,7 @@
         "@dnd-kit/sortable": "^10.0.0",
         "@inertiajs/core": "^2.0.8",
         "@inertiajs/inertia-react": "^0.8.1",
+        "@tinymce/tinymce-react": "^6.1.0",
         "chart.js": "^4.4.9",
         "lucide-react": "^0.477.0",
         "react-chartjs-2": "^5.3.0",

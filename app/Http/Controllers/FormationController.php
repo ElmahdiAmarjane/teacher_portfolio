@@ -145,30 +145,37 @@ class FormationController extends Controller
     /**
      * Remove the specified formation from storage.
      */
-    public function destroy(Formation $formation)
-    {
-        try {
-            // Delete associated image
-            if ($formation->image) {
-                $imagePath = str_replace(Storage::url(''), '', $formation->image);
-                Storage::delete($imagePath);
-            }
+    public function destroyById(Request $request)
+{
+    $request->validate([
+        'id' => 'required|integer|exists:formations,id'
+    ]);
 
-            $formation->delete();
+    try {
+        $formation = Formation::findOrFail($request->id);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Formation deleted successfully'
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete formation',
-                'error' => $e->getMessage()
-            ], 500);
+        // Delete associated image
+        if ($formation->image) {
+            $imagePath = str_replace(Storage::url(''), '', $formation->image);
+            Storage::delete($imagePath);
         }
+
+        $formation->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Formation deleted successfully'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to delete formation',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     /**
      * Get formations for select dropdown

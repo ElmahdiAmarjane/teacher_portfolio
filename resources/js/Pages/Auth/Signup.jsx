@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { router } from "@inertiajs/react";
-import { EyeIcon, EyeOffIcon, ErrorIcon, SuccessIcon } from '@/assets/Icons/icons';
+import { EyeIcon, EyeOffIcon, ErrorIcon, SuccessIcon } from '@/Components/Icons/icons';
 
 const Register = () => {
   const [name, setName] = useState("");
