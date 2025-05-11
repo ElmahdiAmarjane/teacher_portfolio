@@ -80,12 +80,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('admin.dashboard');
 
     // If you prefer controller-based API routes in web.php
-    Route::prefix('admin')->group(function () {
-        Route::get('/visits/daily', [VisitController::class, 'daily']);
-        Route::get('/visits/weekly', [VisitController::class, 'weekly']);
-        Route::get('/visits/monthly', [VisitController::class, 'monthly']);
-        Route::get('/visits/yearly', [VisitController::class, 'yearly']);
-    });
+    // Route::prefix('admin')->group(function () {
+    //     Route::get('/visits/daily', [VisitController::class, 'daily']);
+    //     Route::get('/visits/weekly', [VisitController::class, 'weekly']);
+    //     Route::get('/visits/monthly', [VisitController::class, 'monthly']);
+    //     Route::get('/visits/yearly', [VisitController::class, 'yearly']);
+    // });
 });
 
 // Route::post('/admin/blogs', [BlogController::class, 'store'])->name('admin.blogs.store');
