@@ -71,14 +71,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 //----------------------------------------------
 
 
-Route::post('/formations', [FormationController::class, 'store'])->name('formations.store');
-Route::get('/formations', [FormationController::class, 'index'])->name('formations.index');
-
-
-
-Route::post('/publications', [PublicationController::class, 'store'])->name('publications.store');
-Route::get('/publications', [PublicationController::class, 'index'])->name('publications.index');
-
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -114,13 +106,14 @@ Route::middleware('auth')->group(function () {
         //CHARTS
       
         //FORMATIONS
-       ;
-        
+       
+        Route::post('/formations', [FormationController::class, 'store'])->name('formations.store');
+        Route::get('/formations', [FormationController::class, 'index'])->name('formations.index');
 
         
         //DASHBOARD
         Route::get('/dashboard', function () {
-            return Inertia::render('admin_2/Dashboard');
+            return Inertia::render('Dashboard');
         })->name('dashboard');
         
         //PUBLICATIONS
@@ -146,7 +139,8 @@ Route::middleware('auth')->group(function () {
             // Remove the duplicate route you had:
             // Route::get('publication/update', ...) 
         });
-        //FOURMATIONS
+        Route::post('/publications', [PublicationController::class, 'store'])->name('publications.store');
+        Route::get('/publications', [PublicationController::class, 'index'])->name('publications.index');
 
 
         //USERS
