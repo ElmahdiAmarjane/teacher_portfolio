@@ -4,24 +4,49 @@ import '../css/app.css';
 import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { AlertProvider } from '@/Components/alerts/AlertContext';
 
-// Import layouts
+// Layouts
+import AdminLayout from '@/Layouts/AdminLayout';
+import StudentLayout from '@/Layouts/StudentLayout';
+import MinimalLayout from '@/Layouts/MinimalLayout';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 
+// Context
+import { AlertProvider } from '@/Components/alerts/AlertContext';
+
+const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
+
 createInertiaApp({
+    title: (title) => `${title} - ${appName}`,
     resolve: (name) => {
+        if (name === 'NotFound') {
+            return import('@/Components/NotFound.jsx').then((module) => module.default);
+        }
+
         const page = resolvePageComponent(`./Pages/${name}.jsx`, import.meta.glob('./Pages/**/*.jsx'));
-        
-        // Automatically apply DashboardLayout to all dashboard pages
+
         page.then((module) => {
-            if (module.default.layout === undefined && 
-               (name.startsWith('Dashboard') || 
-                name === 'Users' || 
-                name === 'Publications' || 
-                name === 'Blog')) {
-                module.default.layout = (page) => <DashboardLayout>{page}</DashboardLayout>;
-            }
+            // Layout dynamique en fonction de props.layout (envoyé depuis Laravel)
+            module.default.layout = (page) => {
+                const layoutType = page.props.layout;
+
+                // Si page spécifique
+                if (name.startsWith('Dashboard') || ['Users', 'Publications', 'Blog'].includes(name)) {
+                    return <DashboardLayout>{page}</DashboardLayout>;
+                }
+
+                switch (layoutType) {
+                    case 'admin':
+                        return <AdminLayout>{page}</AdminLayout>;
+                    case 'student':
+                        return <StudentLayout>{page}</StudentLayout>;
+                    case 'minimal':
+                        return <MinimalLayout>{page}</MinimalLayout>;
+                    default:
+                        return <MinimalLayout>{page}</MinimalLayout>; // fallback
+                }
+            };
+
             return module;
         });
 
@@ -30,7 +55,7 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
         root.render(
-            <AlertProvider>  {/* Wrap App with AlertProvider */}
+            <AlertProvider>
                 <App {...props} />
             </AlertProvider>
         );

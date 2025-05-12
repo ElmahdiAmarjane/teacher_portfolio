@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\BlogController;
 
-
 // Public routes
 Route::get('/', function () {
     return Inertia::render('student/Home', [
@@ -24,6 +23,16 @@ Route::get('/', function () {
 // });
 
 
+Route::get('/projects', function () {
+    return Inertia::render('student/Projects', [
+        'layout' => 'student', // Pass the layout name as a prop
+    ]);
+});
+Route::get('/contact', function () {
+    return Inertia::render('student/Contact', [
+        'layout' => 'student', // Pass the layout name as a prop
+    ]);
+});
 
 
 // --------------------------------------------------------------
@@ -90,14 +99,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Route::post('/admin/blogs', [BlogController::class, 'store'])->name('admin.blogs.store');
 // routes/web.php
+use App\Models\Formation;
 
 Route::get('/formation', function () {
-    return Inertia::render('Formation');
+    return Inertia::render('student/Projects');
 })->name('formation');
 
-Route::get('/formation/detail', function () {
-    return Inertia::render('admin_2/formations/FormationDetails');
-})->name('formationDetails');
+Route::get('/formations', function () {
+    return Inertia::render('student/Projects', [
+        'formations' => Formation::all() ,
+        'layout' => 'student', // Pass the layout name as a prop
+    ]);
+});
+
+//Route::get('/formations', [FormationController::class, 'index']);
+
+
+// Route::get('/formation/detail', function () {
+//     return Inertia::render('admin_2/formations/FormationDetails');
+// })->name('formationDetails');
+
+Route::get('/formations/{id}', [FormationController::class, 'show']);
+
 
 // Authenticated routes
 Route::middleware('auth')->group(function () {

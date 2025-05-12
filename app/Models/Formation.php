@@ -18,4 +18,10 @@ class Formation extends Model
         'created_at',
         'updated_at'
     ];
+
+    public function publications()
+{
+    return $this->hasMany(Publication::class);
+}
+
 }

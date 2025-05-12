@@ -1,0 +1,13 @@
+/* styles.css */
+.triangle-decor {
+    position: absolute;
+    bottom: -20px; /* Décale le triangle juste en bas de l'image */
+    left: 20px; /* Décale le triangle un peu vers la gauche */
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 20px solid #319795; /* Teal foncé */
+    z-index: 1; /* Assurez-vous qu'il soit derrière l'image */
+  }
+  

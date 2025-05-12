@@ -13,22 +13,31 @@ class FormationController extends Controller
     /**
      * Display a listing of the formations.
      */
+    // public function index()
+    // {
+    //     try {
+    //         $formations = Formation::all();
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $formations
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed to fetch formations',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
     public function index()
-    {
-        try {
-            $formations = Formation::all();
-            return response()->json([
-                'success' => true,
-                'data' => $formations
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch formations',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
+{
+    $formations = Formation::all();
+
+    return Inertia::render('Formations', [
+        'formations' => $formations
+    ]);
+}
 
     /**
      * Store a newly created formation in storage.
@@ -75,22 +84,51 @@ class FormationController extends Controller
     /**
      * Display the specified formation.
      */
-    public function show(Formation $formation)
-    {
-        try {
-            return response()->json([
-                'success' => true,
-                'data' => $formation
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch formation',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
+    // public function show(Formation $formation)
+    // {
+    //     try {
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $formation
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed to fetch formation',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+    // public function show($id)
+    // {
+    //     $formation = Formation::findOrFail($id);
+    //     return Inertia::render('student/FormationDetail', [
+    //         'formation' => $formation,
+    //         'layout' => 'student', // Pass the layout name as a prop
+    //     ]);
+    // }
+    public function show($id)
+{
+    $formation = Formation::findOrFail($id);
+    
+    // Charger les publications associées avec une relation
+    $formation->load(['publications' => function($query) {
+        $query->orderBy('type')->orderBy('created_at');
+    }]);
+    
+    // Alternative: Récupérer les publications séparément
+    // $publications = Publication::where('formation_id', $id)
+    //     ->orderBy('type')
+    //     ->orderBy('created_at')
+    //     ->get();
+    
+    return Inertia::render('student/FormationDetail', [
+        'formation' => $formation,
+        // 'publications' => $publications, // Si vous utilisez l'alternative
+        'layout' => 'student',
+    ]);
+}
+    
     /**
      * Update the specified formation in storage.
      */
