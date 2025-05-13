@@ -112,6 +112,14 @@ Route::get('/formations', function () {
     ]);
 });
 
+//////////////////:
+use App\Http\Controllers\ContactController;
+
+Route::post('/contact', [ContactController::class, 'send']);
+
+
+//////////////////
+
 //Route::get('/formations', [FormationController::class, 'index']);
 
 

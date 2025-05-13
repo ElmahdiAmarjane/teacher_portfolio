@@ -9,35 +9,37 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // empêche le rechargement de la page
+   const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
 
-    setLoading(true);
-    setError(null); // Réinitialise l'erreur
+  try {
+    const response = await axios.post("/contact", {
+      name,
+      email,
+      message,
+    });
 
-    try {
-      const response = await axios.post("/api/contact", {
-        name,
-        email,
-        message,
-      });
-
-      // Si la requête réussit
-      alert("Message envoyé avec succès !");
-      console.log(response.data); // Affiche la réponse de Laravel (si nécessaire)
-
-      // Réinitialise le formulaire après l'envoi
+    if (response.data.success) {
+      alert("Message sent!");
       setName("");
       setEmail("");
       setMessage("");
-    } catch (error) {
-      // Si une erreur survient
-      console.error("Erreur lors de l'envoi du message:", error);
-      setError("Une erreur est survenue, veuillez réessayer.");
-    } finally {
-      setLoading(false); // Indicateur de fin de requête
     }
-  };
+  } catch (err) {
+    if (err.response?.data?.errors) {
+      // Erreurs de validation Laravel
+      const firstError = Object.values(err.response.data.errors)[0][0];
+      setError(firstError);
+    } else {
+      setError("Something went wrong. Try again later.");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-white text-teal-900 px-6 py-12">
