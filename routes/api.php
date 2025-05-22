@@ -42,11 +42,15 @@ Route::post('/logout', [AuthController::class, 'logout']);
 // });
 
 //FOURMATIONS
+// FORMATIONS
 Route::post('/addFormation', [FormationController::class, 'store']);
 Route::get('/fetchFormation', [FormationController::class, 'index']);
 Route::get('/formations/getTotalFormation', [FormationController::class, 'getTotalFormation']);
-Route::post('/formations', [FormationController::class, 'destroyById']);
-Route::post('/formations', [FormationController::class, 'update']);
+
+// ✅ Separate update and delete routes
+Route::post('/formations/delete', [FormationController::class, 'destroyById']);
+Route::post('/formations/update', [FormationController::class, 'update']);
+
 
 
 Route::middleware(['auth:sanctum'])->group(function () {

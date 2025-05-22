@@ -9,7 +9,7 @@ import {
   FaArrowRight,
 } from "react-icons/fa";
 import heroImage from "../../assets/images/profile.png";
-import aboutImage from "../../assets/images/profile.png";
+import aboutImage from "../../assets/images/profile.jpeg";
 
 const Home = () => {
   const formations = [
@@ -62,12 +62,12 @@ const Home = () => {
       {/* Hero Section */}
       <section className="min-h-screen flex flex-col-reverse lg:flex-row items-center justify-between px-6 md:px-12 lg:px-20 py-20 bg-gradient-to-r from-teal-100 to-teal-50">
         <div className="max-w-xl text-center lg:text-left">
-          <p className="text-gray-800 text-lg font-semibold">Hey, I'm John</p>
+          <p className="text-gray-800 text-lg font-semibold">Hey, I'm Mohammed saad azizi</p>
           <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 my-4 leading-tight">
-            Full Stack <br className="hidden md:block" /> Developer
+           Associate Professor<br className="hidden md:block" /> at ENSIASD
           </h1>
           <p className="text-gray-800 text-base sm:text-lg mb-6">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Amet soluta assumenda cum?
+            Passionate about teaching and research in computer science and artificial intelligence. I strive to empower students with knowledge and critical thinking skills to shape the future of technology.
           </p>
           <button className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-md font-medium inline-flex items-center transition">
             Get in Touch <FaArrowRight className="ml-2" />
@@ -87,10 +87,9 @@ const Home = () => {
           <p className="text-sm text-teal-600 font-medium mb-2">About</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">About Me</h2>
           <p className="text-gray-800 mb-4 text-base sm:text-lg">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem, reprehenderit alias?
-          </p>
+Passionate about teaching and research in computer science and artificial intelligence. I strive to empower students with knowledge and critical thinking skills to shape the future of technology.          </p>
           <p className="text-gray-800 text-base sm:text-lg">
-            Autem officiis sit debitis omnis harum sed veniam quasi dicta accusamus.
+           Welcome to my portfolio! Here you'll find my work, research, and projects in AI and computer science. Let’s explore the future of technology together.
           </p>
         </div>
       </section>

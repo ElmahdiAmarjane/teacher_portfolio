@@ -6,7 +6,7 @@ const ViewBlog = ({ blog, onBackClick }) => {
     const content = blog.content;
 
     return (
-        <div className="w-full mx-auto bg-white p-6 rounded-xl shadow-md">
+        <div className="w-full mx-auto dark:bg-gray-900 bg-white p-6 rounded-xl shadow-md ">
             <div className="flex items-center gap-4 mb-6">
                 <button
                     onClick={onBackClick}

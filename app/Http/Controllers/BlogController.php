@@ -5,6 +5,7 @@ use App\Models\Blog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
+use Inertia\Inertia;
 
 class BlogController extends Controller
 {

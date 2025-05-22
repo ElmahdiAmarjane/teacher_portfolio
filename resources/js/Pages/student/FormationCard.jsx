@@ -9,7 +9,7 @@ export default function FormationCard({ formation }) {
         <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
             <div className="relative h-48">
                 <img
-                    src={formation.image}
+                    src={`/storage/formations/${formation.image}`}
                     alt={formation.title}
                     className="w-full h-full object-cover"
                 />

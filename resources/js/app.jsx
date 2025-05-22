@@ -37,7 +37,7 @@ createInertiaApp({
 
                 switch (layoutType) {
                     case 'admin':
-                        return <AdminLayout>{page}</AdminLayout>;
+                        return <DashboardLayout>{page}</DashboardLayout>;
                     case 'student':
                         return <StudentLayout>{page}</StudentLayout>;
                     case 'minimal':

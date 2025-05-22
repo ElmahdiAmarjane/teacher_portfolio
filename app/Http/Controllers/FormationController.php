@@ -13,31 +13,31 @@ class FormationController extends Controller
     /**
      * Display a listing of the formations.
      */
-    // public function index()
-    // {
-    //     try {
-    //         $formations = Formation::all();
-    //         return response()->json([
-    //             'success' => true,
-    //             'data' => $formations
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Failed to fetch formations',
-    //             'error' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
-
     public function index()
-{
-    $formations = Formation::all();
+    {
+        try {
+            $formations = Formation::all();
+            return response()->json([
+                'success' => true,
+                'data' => $formations
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch formations',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
-    return Inertia::render('Formations', [
-        'formations' => $formations
-    ]);
-}
+//     public function index()
+// {
+//     $formations = Formation::all();
+
+//     return Inertia::render('Formations', [
+//         'formations' => $formations
+//     ]);
+// }
 
     /**
      * Store a newly created formation in storage.
@@ -61,7 +61,7 @@ class FormationController extends Controller
             
             if ($request->hasFile('image')) {
                 $path = $request->file('image')->store('public/formations');
-                $validated['image'] = Storage::url($path); // Utilise Storage::url pour générer l'URL correcte
+                $validated['image'] = basename($path);; // Utilise Storage::url pour générer l'URL correcte
             }
 
             $formation = Formation::create($validated);
@@ -184,7 +184,7 @@ class FormationController extends Controller
      * Remove the specified formation from storage.
      */
     public function destroyById(Request $request)
-{
+ {
     $request->validate([
         'id' => 'required|integer|exists:formations,id'
     ]);

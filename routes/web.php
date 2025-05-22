@@ -97,7 +97,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // });
 });
 
-// Route::post('/admin/blogs', [BlogController::class, 'store'])->name('admin.blogs.store');
+ Route::post('/admin/blogs', [BlogController::class, 'store'])->name('admin.blogs.store');
 // routes/web.php
 use App\Models\Formation;
 
@@ -107,7 +107,7 @@ Route::get('/formation', function () {
 
 Route::get('/formations', function () {
     return Inertia::render('student/Projects', [
-        'formations' => Formation::all() ,
+        //'formations' => Formation::all() ,
         'layout' => 'student', // Pass the layout name as a prop
     ]);
 });
@@ -136,12 +136,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->group(function () {
         //CHARTS
       
-        //FORMATIONS
        
-        Route::post('/formations', [FormationController::class, 'store'])->name('formations.store');
-        Route::get('/formations', [FormationController::class, 'index'])->name('formations.index');
-
-        
         //DASHBOARD
         Route::get('/dashboard', function () {
             return Inertia::render('Dashboard');
@@ -149,7 +144,9 @@ Route::middleware('auth')->group(function () {
         
         //PUBLICATIONS
         Route::get('/publication', function () {
-            return Inertia::render('Publication');
+            return Inertia::render('Publication',[
+                'layout'=>'admin'
+            ]);
         })->name('publication'); 
         Route::get('/publication/fetch-all', [PublicationController::class, 'index'])->name('publication.index');
 
@@ -157,13 +154,18 @@ Route::middleware('auth')->group(function () {
         Route::prefix('publications')->group(function () {
             // New publication form
             Route::get('/new', function () {
-                return Inertia::render('admin_2/publications/NewPublications');
+                return Inertia::render('admin_2/publications/NewPublications',
+                 [
+                    'layout'=>'admin'
+                 ]
+            );
             })->name('newpublication');
         
             // Update publication form - single route with optional ID
             Route::get('/update', function (Request $request) {
                 return Inertia::render('admin_2/publications/UpdatePublications', [
-                    'id' => $request->query('id')
+                    'id' => $request->query('id'),
+                    'layout'=>'admin'
                 ]);
             })->name('updatePublications');
         
@@ -172,7 +174,31 @@ Route::middleware('auth')->group(function () {
         });
         Route::post('/publications', [PublicationController::class, 'store'])->name('publications.store');
         Route::get('/publications', [PublicationController::class, 'index'])->name('publications.index');
+///////////::
 
+
+Route::get('/formation', function () {
+            return Inertia::render('Formation',
+              ['layout'=>'admin']
+        );
+        })->name('formation');
+        
+        Route::get('/detail', function (Request $request) {
+            return Inertia::render('admin_2/formations/FormationDetails', [
+                'id_formation' => $request->query('id_formation'),
+                'layout'=>'admin'
+
+            ]);
+        })->name('formationDetails');
+
+ Route::get('/formations', [FormationController::class, 'index'])->name('formations.index');
+
+Route::post('/formations', [FormationController::class, 'store'])->name('formations.store');
+
+
+
+
+////////////////
 
         //USERS
         Route::get('/users', fn() => Inertia::render('Users'))->name('users');
@@ -188,13 +214,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/blog', function () {
             return Inertia::render('Blog');
         })->name('blog'); 
-        // Route::get('/blog', [BlogController::class, 'index'])->name('admin.blog');
+
+         Route::get('/blogAdmin', [BlogController::class, 'index'])->name('admin.blog');
 
     });
 
     Route::get('/blog', function () {
         $blogs = Blog::latest()->get(); // Récupération des blogs
-        return Inertia::render('admin/Blog', [
+        return Inertia::render('Blog', [
             'layout' => 'admin',
             'blogs' => $blogs, // On les envoie ici
         ]);
@@ -208,7 +235,7 @@ Route::middleware('auth')->group(function () {
 
     // Show edit form (GET)
     Route::get('/blog/{blog}/edit', function (Blog $blog) {
-    return Inertia::render('admin/Blogs/BlogEdit', [
+    return Inertia::render('Blogs/BlogEdit', [
         'layout' => 'admin',
         'blog' => $blog,
     ]);
@@ -236,6 +263,22 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+
+
+
+
+// 👇 JSON API route
+Route::get('/api/formations', [FormationController::class, 'index'])->name('api.formations.index');
+
+// 👇 Inertia page route
+Route::get('/formations', function () {
+    return Inertia::render('student/Projects', [
+        'layout' => 'student',
+    ]);
+})->name('formations.index');
+
+
 
 // 404 Page
 Route::fallback(function () {

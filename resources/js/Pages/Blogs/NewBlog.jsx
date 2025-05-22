@@ -45,7 +45,7 @@ export default function NewBlog({ setNewArticleClicked }) {
     };
 
     return (
-        <div className="flex flex-col gap-4 p-4 bg-white rounded-lg shadow-md">
+        <div className="flex flex-col gap-4 p-4 bg-white rounded-lg shadow-md dark:bg-gray-900">
             {/* Success Message */}
             {showSuccess && (
                 <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded animate-fade-in">
@@ -67,7 +67,7 @@ export default function NewBlog({ setNewArticleClicked }) {
                         placeholder="Blog title here..."
                         value={data.title}
                         onChange={(e) => setData('title', e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
                         required
                     />
                     {errors.title && (
@@ -83,6 +83,7 @@ export default function NewBlog({ setNewArticleClicked }) {
                     )}
                     <div style={{ display: editorReady ? 'block' : 'none' }}>
                         <Editor
+                           className="dark:bg-gray-900"
                             apiKey="iyj19xst9h72hy3nilax4d67isyl620r7cko1yhqioogogju"
                             onInit={(evt, editor) => {
                                 editorRef.current = editor;

@@ -55,7 +55,7 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-bold mb-4">Réseaux sociaux</h3>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-white transition-colors" aria-label="LinkedIn">
+              <a href="https://www.linkedin.com/in/mohamed-saad-azizi-3622872b9" className="text-gray-300 hover:text-white transition-colors" aria-label="LinkedIn">
                 <FaLinkedin className="h-6 w-6" />
               </a>
               <a href="#" className="text-gray-300 hover:text-white transition-colors" aria-label="GitHub">

@@ -47,11 +47,11 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg border border-gray-200 shadow-sm">
         <div className="text-center">
-          <img 
+          {/* <img 
             className="mx-auto h-10 w-auto" 
             src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" 
             alt="Your Company" 
-          />
+          /> */}
           <h2 className="mt-6 text-center text-2xl font-bold text-gray-900">
             Create a new account
           </h2>

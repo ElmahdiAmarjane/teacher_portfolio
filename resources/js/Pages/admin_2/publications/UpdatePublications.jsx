@@ -67,7 +67,7 @@ const UpdatePublication = () => {
             });
 
             showSuccess(response.data.message);
-            router.visit('/updatePublications');
+           // router.visit('/admin_2/publications/UpdatePublications');
         } catch (error) {
             showError(error.response?.data?.message || 'Failed to update publication');
             console.error('Error:', error);

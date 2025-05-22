@@ -9,20 +9,20 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <span className="text-xl font-bold text-gray-900">Professeur Informatique</span>
+            <span className="text-xl font-bold text-gray-900">Mohammed Saad AZIZI</span>
           </div>
 
           {/* Navigation Desktop */}
           <nav className="hidden md:flex items-center space-x-8">
             <a href="/" className="text-gray-900 hover:text-teal-600 px-3 py-2 transition-colors">
-              Accueil
+              Home
             </a>
             <a href="/formations" className="text-gray-900 hover:text-teal-600 px-3 py-2 transition-colors">
               Formations
             </a>
-            <a href="#apropos" className="text-gray-900 hover:text-teal-600 px-3 py-2 transition-colors">
+            {/* <a href="#apropos" className="text-gray-900 hover:text-teal-600 px-3 py-2 transition-colors">
               À propos
-            </a>
+            </a> */}
             <a href="#blog" className="text-gray-900 hover:text-teal-600 px-3 py-2 transition-colors">
               Blog
             </a>
@@ -31,7 +31,7 @@ const Navbar = () => {
             </a>
 
             {/* Auth Buttons */}
-            <div className="ml-4 flex items-center space-x-2">
+            {/* <div className="ml-4 flex items-center space-x-2">
               <a
                 href="/login"
                 className="px-4 py-2 text-sm font-medium text-teal-600 border border-teal-600 rounded-md hover:bg-teal-600 hover:text-white transition"
@@ -44,7 +44,7 @@ const Navbar = () => {
               >
                 Sign Up
               </a>
-            </div>
+            </div> */}
           </nav>
 
           {/* Mobile menu button */}
@@ -81,19 +81,19 @@ const Navbar = () => {
       <div className={`md:hidden ${menuOpen ? 'block' : 'hidden'} transition-all duration-300 ease-in-out`}>
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 shadow-md">
           <a href="/" className="block px-3 py-2 text-base font-medium text-gray-900 hover:text-teal-600 hover:bg-gray-100 transition-colors">
-            Accueil
+            Home
           </a>
           <a href="/formations" className="block px-3 py-2 text-base font-medium text-gray-900 hover:text-teal-600 hover:bg-gray-100 transition-colors">
             Formations
           </a>
-          <a href="#apropos" className="block px-3 py-2 text-base font-medium text-gray-900 hover:text-teal-600 hover:bg-gray-100 transition-colors">
+          {/* <a href="#apropos" className="block px-3 py-2 text-base font-medium text-gray-900 hover:text-teal-600 hover:bg-gray-100 transition-colors">
             À propos
-          </a>
+          </a> */}
           <a href="/contact" className="block px-3 py-2 text-base font-medium text-gray-900 hover:text-teal-600 hover:bg-gray-100 transition-colors">
             Contact
           </a>
           {/* Auth Buttons Mobile */}
-          <div className="mt-3 space-y-2">
+          {/* <div className="mt-3 space-y-2">
             <a
               href="/login"
               className="block w-full text-center px-4 py-2 text-sm font-medium text-teal-600 border border-teal-600 rounded-md hover:bg-teal-600 hover:text-white transition"
@@ -106,7 +106,7 @@ const Navbar = () => {
             >
               Sign Up
             </a>
-          </div>
+          </div> */}
         </div>
       </div>
     </header>

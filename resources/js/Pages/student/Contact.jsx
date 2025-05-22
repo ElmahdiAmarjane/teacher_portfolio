@@ -61,16 +61,16 @@ const Contact = () => {
             <div className="flex items-center space-x-3">
               <Mail className="text-teal-400" />
               <a href="mailto:youremail@example.com" className="hover:underline">
-                youremail@example.com
+                azizi@gmail.com
               </a>
             </div>
             <div className="flex items-center space-x-3">
               <Phone className="text-teal-400" />
-              <span>+123-456-7890</span>
+              <span>+212 640908734</span>
             </div>
             <div className="flex items-center space-x-3">
               <MapPin className="text-teal-400" />
-              <span>City, Country</span>
+              <span>Taroudant, Morocco</span>
             </div>
           </div>
         </div>

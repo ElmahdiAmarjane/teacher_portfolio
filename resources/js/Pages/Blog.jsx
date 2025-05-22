@@ -39,12 +39,12 @@ const Blog = () => {
     };
 
     return (
-        <div className="p-6">
+        <div className="p-6 dark:bg-gray-900">
             {!newArticleClicked && !selectedBlog ? (
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-6 ">
                     <div className="flex gap-4 justify-between">
                         <input
-                            className="w-4/5 p-2 border border-gray-300 rounded"
+                            className="w-4/5 p-2 border border-gray-300 rounded dark:bg-gray-900"
                             type="text"
                             placeholder="Search by title ..."
                             value={searchTerm}
