@@ -89,7 +89,7 @@ export default function NewBlog({ setNewArticleClicked }) {
                                 editorRef.current = editor;
                                 setEditorReady(true);
                             }}
-                            initialValue={data.content}
+                            //initialValue={data.content}
                             onEditorChange={handleEditorChange}
                             init={{
                                 height: 500,
