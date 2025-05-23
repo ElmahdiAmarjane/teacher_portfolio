@@ -92,6 +92,6 @@ public function index()
 
         $blog->update($validated);
 
-        return redirect()->route('admin.blog')->with('success', 'Blog updated successfully');
+        return redirect()->route('blog')->with('success', 'Blog updated successfully');
     }
 }

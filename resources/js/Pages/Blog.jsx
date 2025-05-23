@@ -11,7 +11,9 @@ const Blog = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const postsPerPage = 4;
-    
+     const page = usePage();
+      console.log("page.props =", page.props); // 👈 ajoute ce log
+
     const { props } = usePage();
     const { blogs = [] } = props;
 

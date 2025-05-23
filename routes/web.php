@@ -211,26 +211,27 @@ Route::post('/formations', [FormationController::class, 'store'])->name('formati
         Route::post('/users/unverify', [UsersController::class, 'unverifyUserByEmail'])->name('users.unverify');
                 
         //BLOG
-        Route::get('/blog', function () {
-            return Inertia::render('Blog');
-        })->name('blog'); 
+        // Route::get('/blog', function () {
+        //     return Inertia::render('Blog');
+        // })->name('blog'); 
 
-         Route::get('/blogAdmin', [BlogController::class, 'index'])->name('admin.blog');
+        //  Route::get('/blogAdmin', [BlogController::class, 'index'])->name('admin.blog');
 
-    });
-
-    Route::get('/blog', function () {
+     Route::get('/blog', function () {
         $blogs = Blog::latest()->get(); // Récupération des blogs
         return Inertia::render('Blog', [
             'layout' => 'admin',
             'blogs' => $blogs, // On les envoie ici
         ]);
-    })->name('admin.blog');
+    })->name('blog');
+    });
+
+  
 
         // Add this delete route
     Route::delete('/blog/{blog}', function (Blog $blog) {
         $blog->delete();
-        return redirect()->route('admin.blog')->with('success', 'Blog deleted successfully');
+        return redirect()->route('blog')->with('success', 'Blog deleted successfully');
     })->name('admin.blog.destroy');
 
     // Show edit form (GET)
