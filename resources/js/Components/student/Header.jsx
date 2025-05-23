@@ -1,8 +1,11 @@
+import UserAvatar from "@/Pages/UserAvatar";
+import { usePage } from "@inertiajs/react";
 import { useState } from "react";
 
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
-
+ const { auth } = usePage().props;
+    const user = auth.user;
     return (
         <header className="bg-white shadow-sm sticky top-0 z-50 w-full">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -51,7 +54,8 @@ const Navbar = () => {
                         </a>
 
                         {/* Auth Buttons */}
-                        {/* <div className="ml-4 flex items-center space-x-2">
+
+            {   !user ?         <div className="ml-4 flex items-center space-x-2">
               <a
                 href="/login"
                 className="px-4 py-2 text-sm font-medium text-teal-600 border border-teal-600 rounded-md hover:bg-teal-600 hover:text-white transition"
@@ -64,7 +68,7 @@ const Navbar = () => {
               >
                 Sign Up
               </a>
-            </div> */}
+            </div> : <UserAvatar/>}
                     </nav>
 
                     {/* Mobile menu button */}
@@ -140,7 +144,7 @@ const Navbar = () => {
                         Contact
                     </a>
                     {/* Auth Buttons Mobile */}
-                    {/* <div className="mt-3 space-y-2">
+                    <div className="mt-3 space-y-2">
             <a
               href="/login"
               className="block w-full text-center px-4 py-2 text-sm font-medium text-teal-600 border border-teal-600 rounded-md hover:bg-teal-600 hover:text-white transition"
@@ -153,7 +157,7 @@ const Navbar = () => {
             >
               Sign Up
             </a>
-          </div> */}
+          </div>
                 </div>
             </div>
         </header>

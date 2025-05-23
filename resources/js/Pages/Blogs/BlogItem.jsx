@@ -21,7 +21,7 @@ const BlogItem = ({ data, onViewClick, onDelete }) => {
 
     return (
         <>
-            <div className="group relative w-full p-4 bg-white rounded-lg border shadow hover:shadow-md transition duration-300 dark:bg-gray-900">
+            <div  onClick={() => onViewClick(data)} className="group relative w-full p-4 bg-white rounded-lg border shadow hover:shadow-md transition duration-300 dark:bg-gray-900 cursor-pointer">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
                     <div>
                         <h1 className="text-xl font-semibold text-gray-800 group-hover:text-blue-600 transition duration-200 dark:text-white">

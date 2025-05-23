@@ -28,6 +28,7 @@
         "@dnd-kit/sortable": "^10.0.0",
         "@inertiajs/core": "^2.0.8",
         "@inertiajs/inertia-react": "^0.8.1",
+        "@lottiefiles/dotlottie-react": "^0.13.5",
         "@tinymce/tinymce-react": "^6.1.0",
         "chart.js": "^4.4.9",
         "dayjs": "^1.11.13",

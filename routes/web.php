@@ -16,7 +16,11 @@ Route::get('/', function () {
     return Inertia::render('student/Home', [
         'layout' => 'student',
     ]);
-});
+})->name("/");
+
+Route::get('/verification', function () {
+    return Inertia::render('waitingVerification');
+})->name('verification');
 
 // Route::get('/Dashboard', function () {
 //     return Inertia::render('admin2/Dashboard');
@@ -65,7 +69,7 @@ Route::get('/login', function () {
     if (Auth::check()) {
         return auth()->user()->role === 'admin' 
             ? redirect()->route('dashboard')
-            : redirect()->route('dashboard');
+            : redirect()->route('/');
     }
 
     return Inertia::render('auth/Login', [

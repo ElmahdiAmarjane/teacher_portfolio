@@ -16,10 +16,10 @@ const ViewBlog = ({ blog, onBackClick }) => {
                 </button>
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">{title}</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-4 dark:text-white">{title}</h1>
 
             <div
-                className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl"
+                className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl dark:text-white"
                 dangerouslySetInnerHTML={{ __html: content }}
             />
         </div>

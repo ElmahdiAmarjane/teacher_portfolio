@@ -27,14 +27,21 @@ class AuthController extends Controller
             ]);
         }
 
-        $request->session()->regenerate();
-
         // Redirect based on role using named routes
         if (auth()->user()->role === 'admin') {
             return redirect()->route('dashboard');
         }
+        // Check if the user is verified
+        if (!auth()->user()->is_verified) {
+            Auth::logout(); // Logout the user immediately
+            throw ValidationException::withMessages([
+                'email' => 'Your account is not verified.',
+            ]);
+        }
+
+        $request->session()->regenerate();
         
-        return redirect()->route('dashboard');
+        return redirect()->route('/');
     }
 
     public function signup(Request $request)
@@ -49,14 +56,14 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'user', // Default role
+            'role' => 'user', 
             'is_verified' => 0,
         ]);
 
         event(new Registered($user));
-        Auth::login($user);
+        // Auth::login($user);
 
-        return Inertia::location(route('dashboard'));
+        return Inertia::location(route('verification'));
 
     }
 
