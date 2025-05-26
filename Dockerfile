@@ -38,4 +38,5 @@ RUN chmod -R 775 /var/www/storage
 
 EXPOSE 9000
 
-CMD ["sh", "-c", "php-fpm & nginx -g 'daemon off;'"]
+CMD sh -c "php-fpm & nginx -g 'daemon off;'"
+
