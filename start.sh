@@ -1,15 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
-# Generate key if not set
-if [ -z "$APP_KEY" ]; then
-  php artisan key:generate --force
-fi
+# Start PHP-FPM in foreground (with root permission)
+php-fpm -F -R -O --nodaemonize --fpm-config /usr/local/etc/php-fpm.d/www.conf &
 
-# Optimize application
-php artisan optimize:clear
-php artisan optimize
-php artisan view:cache
+# Wait briefly for PHP-FPM to start
+sleep 2
 
-# Start services
-php-fpm -D
-nginx -g 'daemon off;'
+# Start Nginx in foreground
+nginx -g "daemon off;"
