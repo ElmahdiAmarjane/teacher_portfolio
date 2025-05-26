@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Remplace ${PORT} par sa valeur réelle dans nginx.conf
+# Remplace ${PORT} par la vraie valeur dans le template NGINX
 envsubst '${PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
-# Démarre php-fpm
+# Lancer PHP-FPM (en arrière-plan)
 php-fpm &
 
-# Démarre nginx en foreground
+# Lancer NGINX (au premier plan)
 nginx -g "daemon off;"
