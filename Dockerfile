@@ -2,19 +2,11 @@
 FROM node:18 as build
 
 WORKDIR /app
-
-# Copy package files first for better layer caching
 COPY package.json package-lock.json ./
-RUN npm ci --silent
-
-# Copy configuration files
-COPY vite.config.js tailwind.config.js postcss.config.js ./
-
-# Copy source files
+RUN npm install
 COPY resources/js ./resources/js
 COPY resources/css ./resources/css
-
-# Build production assets
+COPY vite.config.js tailwind.config.js postcss.config.js ./
 RUN npm run build
 
 # Stage 2: PHP Backend with Nginx
@@ -48,6 +40,8 @@ RUN chown -R www-data:www-data /var/www/storage \
     && chmod -R 775 /var/www/storage \
     && chmod -R 775 /var/www/bootstrap/cache
 
-EXPOSE 8080
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:9000 || exit 1
 
 CMD sh -c "php-fpm -D && nginx -g 'daemon off;'"
