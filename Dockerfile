@@ -1,48 +1,42 @@
-# Stage 1: Build React assets with Node
+# Stage 1: Build React assets
 FROM node:18 as build
 
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm install
-COPY resources/js ./resources/js
-COPY resources/css ./resources/css
+COPY resources ./resources
 COPY vite.config.js tailwind.config.js postcss.config.js ./
 RUN npm run build
 
-# Stage 2: PHP Backend with Nginx
+# Stage 2: Production image
 FROM php:8.2-fpm
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git curl libpng-dev libonig-dev libxml2-dev zip unzip nginx \
+    nginx git curl libpng-dev libonig-dev libxml2-dev zip unzip \
     && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Configure PHP-FPM to run as root
+RUN sed -i 's/user = www-data/user = root/g' /usr/local/etc/php-fpm.d/www.conf \
+    && sed -i 's/group = www-data/group = root/g' /usr/local/etc/php-fpm.d/www.conf
 
-WORKDIR /var/www
-
-# Copy Laravel files
-COPY . .
-
-# Copy built assets from Node stage
+# Copy application files
 COPY --from=build /app/public/build /var/www/public/build
+COPY . /var/www
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Configure Nginx
+# Copy configurations
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/start.sh /usr/local/bin/start.sh
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/storage \
+RUN chown -R root:root /var/www/storage \
     && chmod -R 775 /var/www/storage \
-    && chmod -R 775 /var/www/bootstrap/cache
+    && chmod -R 775 /var/www/bootstrap/cache \
+    && chmod +x /usr/local/bin/start.sh
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:9000 || exit 1
+# Expose the port Railway will use
+EXPOSE 8080
 
-
-CMD ["sh", "-c", "chmod +x /start.sh && /start.sh"]
+# Start the application
+CMD ["/usr/local/bin/start.sh"]
