@@ -2,16 +2,23 @@
 FROM node:18 as build
 
 WORKDIR /app
+
+# Copy package files first for better layer caching
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci --silent
+
+# Copy configuration files
+COPY vite.config.js tailwind.config.js postcss.config.js ./
+
+# Copy source files
 COPY resources/js ./resources/js
-COPY vite.config.js ./
+COPY resources/css ./resources/css
+
+# Build production assets
 RUN npm run build
 
 # Stage 2: PHP Backend with Nginx
 FROM php:8.2-fpm
-
-WORKDIR /var/www
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -22,11 +29,15 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy only necessary files for production
+WORKDIR /var/www
+
+# Copy Laravel files
 COPY . .
+
+# Copy built assets from Node stage
 COPY --from=build /app/public/build /var/www/public/build
 
-# Install PHP dependencies (no dev dependencies)
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Configure Nginx
@@ -37,8 +48,6 @@ RUN chown -R www-data:www-data /var/www/storage \
     && chmod -R 775 /var/www/storage \
     && chmod -R 775 /var/www/bootstrap/cache
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-8080}/health || exit 1
+EXPOSE 8080
 
-CMD ["sh", "start.sh"]
+CMD sh -c "php-fpm -D && nginx -g 'daemon off;'"
