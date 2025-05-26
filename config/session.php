@@ -19,6 +19,7 @@ return [
     */
 
     'driver' => env('SESSION_DRIVER', 'file'),
+    
 
     /*
     |--------------------------------------------------------------------------
@@ -197,5 +198,7 @@ return [
     */
 
     'same_site' => 'lax',
+
+    'lifetime' => env('SESSION_LIFETIME', 120),  // Set it to a reasonable value, like 120 minutes
 
 ];

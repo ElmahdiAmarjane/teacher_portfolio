@@ -5,30 +5,74 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Validation\Rules\Password;
+use Inertia\Inertia;
+
 
 class AuthController extends Controller
 {
-    public function signup(Request $request)
+    public function login(Request $request)
     {
-        // Validate the request data
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+        if (!Auth::attempt($request->only('email', 'password'))) {
+            throw ValidationException::withMessages([
+                'email' => __('auth.failed'),
+            ]);
         }
 
-        // Create a new user
+        // Redirect based on role using named routes
+        if (auth()->user()->role === 'admin') {
+            return redirect()->route('dashboard');
+        }
+        // Check if the user is verified
+        if (!auth()->user()->is_verified) {
+            Auth::logout(); // Logout the user immediately
+            throw ValidationException::withMessages([
+                'email' => 'Your account is not verified.',
+            ]);
+        }
+
+        $request->session()->regenerate();
+        
+        return redirect()->route('/');
+    }
+
+    public function signup(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'user', 
+            'is_verified' => 0,
         ]);
 
-        return response()->json(['message' => 'User registered successfully!', 'user' => $user], 201);
+        event(new Registered($user));
+        // Auth::login($user);
+
+        return Inertia::location(route('verification'));
+
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 }
