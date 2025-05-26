@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Start PHP-FPM in background (fixed port 9000)
-php-fpm -D -O -R --listen 127.0.0.1:9000
+# Remplace ${PORT} par sa valeur réelle dans nginx.conf
+envsubst '${PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
-# Start Nginx in foreground (using Railway's PORT)
+# Démarre php-fpm
+php-fpm &
+
+# Démarre nginx en foreground
 nginx -g "daemon off;"
