@@ -36,6 +36,6 @@ COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 RUN chown -R www-data:www-data /var/www/storage
 RUN chmod -R 775 /var/www/storage
 
-EXPOSE 80
+EXPOSE 9000
 
 CMD ["sh", "-c", "php-fpm & nginx -g 'daemon off;'"]
