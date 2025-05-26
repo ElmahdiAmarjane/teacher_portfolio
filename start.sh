@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# Start PHP-FPM in foreground (with root permission)
-php-fpm -F -R -O --nodaemonize --fpm-config /usr/local/etc/php-fpm.d/www.conf &
+# Start PHP-FPM in background (fixed port 9000)
+php-fpm -D -O -R --listen 127.0.0.1:9000
 
-# Wait briefly for PHP-FPM to start
-sleep 2
-
-# Start Nginx in foreground
+# Start Nginx in foreground (using Railway's PORT)
 nginx -g "daemon off;"
